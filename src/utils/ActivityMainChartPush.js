@@ -1,137 +1,182 @@
 import Papa from 'papaparse';
 
 class ActivityMainChartPush {
-    constructor() {
-        this.data = [];
-        this.listeners = [];
-        this.intervalId = null;
-        this.currentWearerId = null;
-        this.storageListener = null;
-        
-        // Initialize with current selected wearer
+  constructor({ pollMs = 1000, maxPoints = 0 } = {}) {
+    this.data = [];
+    this.listeners = [];
+    this.intervalId = null;
+    this.currentWearerId = null;
+    this.storageListener = null;
+    this.pollMs = pollMs;       // 1000 ms = 1s polling
+    this.maxPoints = maxPoints; // 0 = unlimited; else cap array length
+
+    // Initialize with current selected wearer
+    this.updateSelectedWearer();
+    this.setupStorageListener();
+  }
+
+  // ====== Wearer selection ======
+  getSelectedWearerId() {
+    return localStorage.getItem('selectedWearerId') || '1'; // default '1'
+  }
+
+  getCSVPath() {
+    const wearerId = this.getSelectedWearerId();
+    // Adjust if your asset path differs in production builds
+    return `/src/ChartData/ActivityMainChart/${wearerId}.csv`;
+  }
+
+  updateSelectedWearer() {
+    const newWearerId = this.getSelectedWearerId();
+    if (newWearerId !== this.currentWearerId) {
+      this.currentWearerId = newWearerId;
+      // reset cache and force a full reload on next tick
+      this.data = [];
+      this.updateData(true);
+    }
+  }
+
+  setupStorageListener() {
+    // Fires when *another tab* changes localStorage
+    this.storageListener = (event) => {
+      if (event.key === 'selectedWearerId') {
         this.updateSelectedWearer();
-        this.setupStorageListener();
+      }
+    };
+    window.addEventListener('storage', this.storageListener);
+  }
+
+  // ====== Helpers ======
+  getLastTimestamp() {
+    if (!this.data.length) return 0;
+    return this.data[this.data.length - 1].time; // unix seconds
+  }
+
+  // Optional memory cap
+  maybeTrim() {
+    if (this.maxPoints > 0 && this.data.length > this.maxPoints) {
+      this.data.splice(0, this.data.length - this.maxPoints);
+    }
+  }
+
+  // ====== Data fetching & parsing ======
+  async fetchCSVData() {
+    try {
+      const csvPath = this.getCSVPath();
+      // cache-bust to always get fresh content
+      const response = await fetch(`${csvPath}?t=${Date.now()}`, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const csvText = await response.text();
+
+      const lastSeen = this.getLastTimestamp();
+
+      return new Promise((resolve, reject) => {
+        Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            const parsed = results.data
+              .filter(row => row.x && row.y && row.time && row.date)
+              .map(row => {
+                const dateTime = new Date(row.x); // 'YYYY-MM-DD HH:mm:SS+TZ'
+                const unixTime = Math.floor(dateTime.getTime() / 1000);
+                return {
+                  time: unixTime,
+                  value: parseFloat(row.y),
+                  originalDateTime: row.x,
+                  originalTime: row.time,
+                  originalDate: row.date
+                };
+              })
+              .filter(pt => Number.isFinite(pt.time) && Number.isFinite(pt.value))
+              .sort((a, b) => a.time - b.time);
+
+            // Return only new points beyond what we already have
+            const delta = parsed.filter(pt => pt.time > lastSeen);
+            resolve(delta);
+          },
+          error: (err) => reject(err),
+        });
+      });
+    } catch (error) {
+      console.error(`Error fetching CSV data for wearer ${this.currentWearerId}:`, error);
+      return [];
+    }
+  }
+
+  async updateData(forceFullReload = false) {
+    const delta = await this.fetchCSVData();
+
+    if (forceFullReload) {
+      // If we just switched wearer, fetchCSVData() returns *all* rows.
+      // Replace cache in that case.
+      if (delta.length > 0) {
+        this.data = delta;
+        this.maybeTrim();
+        this.notifyListeners();
+      }
+      return;
     }
 
-    getSelectedWearerId() {
-        return localStorage.getItem('selectedWearerId') || '1'; // Default to '1' if not set
+    if (delta.length > 0) {
+      // Append-only for live mode
+      this.data = this.data.concat(delta);
+      this.maybeTrim();
+      this.notifyListeners();
     }
+  }
 
-    getCSVPath() {
-        const wearerId = this.getSelectedWearerId();
-        return `/src/ChartData/ActivityMainChart/${wearerId}.csv`;
-    }
+  // ====== Pub/Sub ======
+  addListener(callback) {
+    this.listeners.push(callback);
+  }
 
-    updateSelectedWearer() {
-        const newWearerId = this.getSelectedWearerId();
-        if (newWearerId !== this.currentWearerId) {
-            this.currentWearerId = newWearerId;
-            // Clear current data and fetch new data for the selected wearer
-            this.data = [];
-            this.updateData();
-        }
-    }
+  removeListener(callback) {
+    this.listeners = this.listeners.filter(fn => fn !== callback);
+  }
 
-    setupStorageListener() {
-        this.storageListener = (event) => {
-            if (event.key === 'selectedWearerId') {
-                this.updateSelectedWearer();
-            }
-        };
-        window.addEventListener('storage', this.storageListener);
+  notifyListeners() {
+    for (const fn of this.listeners) {
+      try { fn(this.data); } catch (e) { console.error('Listener error:', e); }
     }
+  }
 
-    async fetchCSVData() {
-        try {
-            const csvPath = this.getCSVPath();
-            const response = await fetch(csvPath);
-            const csvText = await response.text();
-            
-            return new Promise((resolve, reject) => {
-                Papa.parse(csvText, {
-                    header: true,
-                    complete: (results) => {
-                        const formattedData = results.data
-                            .filter(row => row.x && row.y && row.time && row.date)
-                            .map(row => {
-                                // Convert the full datetime string to Unix timestamp
-                                const dateTime = new Date(row.x);
-                                const unixTime = Math.floor(dateTime.getTime() / 1000);
-                                
-                                return {
-                                    time: unixTime,
-                                    value: parseFloat(row.y),
-                                    originalDateTime: row.x,
-                                    originalTime: row.time,
-                                    originalDate: row.date
-                                };
-                            })
-                            .sort((a, b) => a.time - b.time); // Ensure ascending order
-                        resolve(formattedData);
-                    },
-                    error: (error) => {
-                        reject(error);
-                    }
-                });
-            });
-        } catch (error) {
-            console.error(`Error fetching CSV data for wearer ${this.currentWearerId}:`, error);
-            return [];
-        }
-    }
+  // ====== Live control ======
+  startLiveUpdates() {
+    // Immediate load
+    this.updateData(true);
+    // Poll every second
+    this.intervalId = setInterval(() => {
+      // In same tab, detect wearer change
+      this.updateSelectedWearer();
+      // Then fetch the latest
+      this.updateData();
+    }, this.pollMs);
+  }
 
-    async updateData() {
-        const newData = await this.fetchCSVData();
-        if (newData.length > 0) {
-            this.data = newData;
-            this.notifyListeners();
-        }
+  stopLiveUpdates() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
     }
+    if (this.storageListener) {
+      window.removeEventListener('storage', this.storageListener);
+      this.storageListener = null;
+    }
+  }
 
-    addListener(callback) {
-        this.listeners.push(callback);
-    }
+  // Manual switch for immediate updates
+  switchWearer(wearerId) {
+    localStorage.setItem('selectedWearerId', wearerId);
+    this.updateSelectedWearer();
+  }
 
-    removeListener(callback) {
-        this.listeners = this.listeners.filter(listener => listener !== callback);
-    }
-
-    notifyListeners() {
-        this.listeners.forEach(callback => callback(this.data));
-    }
-
-    startLiveUpdates() {
-        this.updateData();
-        this.intervalId = setInterval(() => {
-            // Check for user changes first (for same-tab changes)
-            this.updateSelectedWearer();
-            // Then update data
-            this.updateData();
-        }, 60000); // Update every minute
-    }
-
-    stopLiveUpdates() {
-        if (this.intervalId) {
-            clearInterval(this.intervalId);
-            this.intervalId = null;
-        }
-        if (this.storageListener) {
-            window.removeEventListener('storage', this.storageListener);
-            this.storageListener = null;
-        }
-    }
-
-    // Method to manually switch wearer (useful for immediate updates)
-    switchWearer(wearerId) {
-        localStorage.setItem('selectedWearerId', wearerId);
-        this.updateSelectedWearer();
-    }
-
-    getCurrentData() {
-        return this.data;
-    }
+  getCurrentData() {
+    return this.data;
+  }
 }
 
-const activityChartPush = new ActivityMainChartPush();
+// Example: 1-second polling, keep last 10,000 points (set 0 to disable cap)
+const activityChartPush = new ActivityMainChartPush({ pollMs: 1000, maxPoints: 10000 });
 
 export default activityChartPush;
