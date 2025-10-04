@@ -1,3 +1,5 @@
+# Chart data folder
+src/ChartData/
 # Logs
 logs
 *.log
