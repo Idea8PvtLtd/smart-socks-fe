@@ -1,0 +1,151 @@
+.reportPrevCont {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  justify-content: center;
+  align-items: center;
+}
+.reportPrevContentBox {
+  width: 100%;
+}
+.reportPrevSelectWearer {
+  width: 98%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  margin: 0 auto;
+  gap: 4px;
+}
+.reportPrevSelectWearerItem {
+  background-color: #673a8f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 10px 10px 0 0;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 14px;
+}
+.reportPrevSelectWearerItemremove {
+  font-size: 20px;
+}
+.reportPrevNotSelectWearerItem {
+  background-color: #e0d9ed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #673a8f;
+  padding: 8px 15px;
+  border-radius: 10px 10px 0 0;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-size: 14px;
+}
+.reportCardSelect {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  gap: 10px;
+  flex-direction: column;
+  border: 1.5px solid #673a8f;
+  border-radius: 6px;
+}
+.reportChartBox {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  height: auto;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.reportChartBoxlft {
+  width: 70%;
+  height: 365px;
+}
+.reportChartBoxright {
+  width: 30%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 20px;
+  flex-direction: column;
+}
+.reportChartBoxrightCont {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  flex-direction: row;
+  gap: 10px;
+  border: 1px solid #e0e0e0;
+  padding: 10px;
+  border-radius: 8px;
+}
+.reportChartBoxrightContTit {
+  font-size: 19px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #333333;
+}
+.reportChartBoxrightContCount {
+  font-size: 22px;
+  font-weight: 700;
+  color: #673a8f;
+}
+.reportPreviewBtn {
+  width: 200px;
+  margin-right: auto;
+  padding: 10px 20px;
+  background-color: #673a8f;
+  color: white;
+  border: none;
+  border-radius: 5px 5px 0 0;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 15px;
+}
+.dateRangePicker {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #673a8f;
+  font-size: 15px;
+  color: #222;
+  width: 230px;
+  transition: border-color 0.2s;
+}
+.dateRangePicker:focus {
+  border-color: #673a8f;
+  outline: none;
+  box-shadow: 0 0 0 2px #44b64922;
+}
+.react-datepicker {
+  font-size: 15px;
+  border-radius: 8px;
+  border: 1px solid #673a8f;
+  box-shadow: 0 2px 12px #673a8f22;
+  background: #fff;
+}
+.react-datepicker__header {
+  background: #f8fcff;
+  border-bottom: 1px solid #673a8f;
+}
+.react-datepicker__day--selected,
+.react-datepicker__day--in-selecting-range,
+.react-datepicker__day--in-range {
+  background: #673a8f;
+  color: #fff;
+}
+.react-datepicker__day--keyboard-selected {
+  background: #673a8f;
+  color: #fff;
+}

@@ -1,0 +1,70 @@
+{
+  "careLogin": {
+    "title": "Care Login",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "loginButton": "Login",
+    "successTitle": "Login Success",
+    "successMessage": "You have logged in successfully. you redirected to Dashboard. ",
+    "invalidTitle": "Invalid Credentials",
+    "invalidMessage": "The email or password you entered is incorrect."
+  },
+  "adminLogin": {
+    "title": "Admin Login",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "loginButton": "Login",
+    "successTitle": "Login Success",
+    "successMessage": "You have logged in successfully. you redirected to Dashboard. ",
+    "invalidTitle": "Invalid Credentials",
+    "invalidMessage": "The email or password you entered is incorrect."
+  },
+  "observations": {
+    "successTitle": "Added successfully",
+    "successAddMessage": "Your Notes data added successfully.",
+    "successEditMessage": "Notes updated successfully.",
+    "successDeleteMessage": "Notes deleted successfully.",
+    "errorTitle": "Error",
+    "errorMessage": "An error occurred. Please try again."
+  },
+  "Wearers": {
+    "successTitle": "Added successfully",
+    "successEditTitle": "Update successfully",
+    "successDeleteTitle": "Delete successfully",
+    "successAddMessage": "Your Wearers data added successfully.",
+    "successEditMessage": "Wearers updated successfully.",
+    "successDeleteMessage": "Wearers deleted successfully.",
+    "errorTitle": "Error",
+    "errorMessage": "An error occurred. Please try again."
+  },
+  "Socks": {
+    "successTitle": "Added successfully",
+    "successEditTitle": "Update successfully",
+    "successDeleteTitle": "Delete successfully",
+    "successAddMessage": "Your Socks data added successfully.",
+    "successEditMessage": "Socks updated successfully.",
+    "successDeleteMessage": "Socks deleted successfully.",
+    "errorTitle": "Error",
+    "errorMessage": "An error occurred. Please try again."
+  },
+  "CareSetting": {
+    "successTitle": "Added successfully",
+    "successEditTitle": "Update successfully",
+    "successDeleteTitle": "Delete successfully",
+    "successAddMessage": "Your Care data added successfully.",
+    "successEditMessage": "Care updated successfully.",
+    "successDeleteMessage": "Care deleted successfully.",
+    "errorTitle": "Error",
+    "errorMessage": "An error occurred. Please try again."
+  },
+  "LocationSetting": {
+    "successTitle": "Added successfully",
+    "successEditTitle": "Update successfully",
+    "successDeleteTitle": "Delete successfully",
+    "successAddMessage": "Your Location data added successfully.",
+    "successEditMessage": "Location updated successfully.",
+    "successDeleteMessage": "Location deleted successfully.",
+    "errorTitle": "Error",
+    "errorMessage": "An error occurred. Please try again."
+  }
+}

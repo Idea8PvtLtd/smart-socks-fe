@@ -1,0 +1,102 @@
+{
+  "Alert": {
+    "alert1": {
+      "id": "1",
+      "wearerID": "1",
+      "status": "High",
+      "date": "2024-06-01",
+      "time": "14:30",
+      "FullName": "Maya Perera",
+      "location": "Ground Floor",
+      "carer": "pafs sdf",
+      "trigger": "Misses a scheduled visit",
+      "Behavior": "Attends weekly church service, enjoys gardening, reads the newspaper daily.",
+      "Support": "Daughter visits twice a week",
+      "event": "Missed scheduled care visit"
+    },
+    "alert2": {
+      "id": "2",
+      "wearerID": "2",
+      "status": "Low",
+      "date": "2024-06-01",
+      "time": "14:30",
+      "FullName": "Edith Thompson",
+      "location": "Ground Floor",
+      "carer": "pafs sdf",
+      "trigger": "Activity session is cancelled",
+      "Behavior": "Becomes anxious and calls neighbors for reassurance.",
+      "Support": "Local community center activities",
+      "event": "Activity session cancelled"
+    },
+    "alert3": {
+      "id": "3",
+      "wearerID": "3",
+      "status": "Medium",
+      "date": "2024-06-01",
+      "time": "14:30",
+      "FullName": "Mabel Whitfield",
+      "location": "Ground Floor",
+      "carer": "pafs sdf",
+      "trigger": "Misses a scheduled visit",
+      "Behavior": "Attends weekly church service, enjoys gardening, reads the newspaper daily.",
+      "Support": "Daughter visits twice a week",
+      "event": "Care visit missed"
+    },
+    "alert4": {
+      "id": "4",
+      "wearerID": "4",
+      "status": "Medium",
+      "date": "2024-06-02",
+      "time": "10:15",
+      "FullName": "Dorothy Hargreaves",
+      "location": "First Floor",
+      "carer": "Anna Lee",
+      "trigger": "Forgets to take medication",
+      "Behavior": "Enjoys listening to classical music and watching documentaries.",
+      "Support": "Son visits every Sunday",
+      "event": "Medication missed"
+    },
+    "alert5": {
+      "id": "5",
+      "wearerID": "5",
+      "status": "High",
+      "date": "2024-06-02",
+      "time": "12:45",
+      "FullName": "Agnes Cartwright",
+      "location": "Second Floor",
+      "carer": "Mark Taylor",
+      "trigger": "Wanders outside building unexpectedly",
+      "Behavior": "Likes knitting and chatting with neighbors, easily forgetful in new places.",
+      "Support": "Regular phone check-ins with daughter",
+      "event": "Unsupervised wandering outside"
+    },
+    "alert6": {
+      "id": "6",
+      "wearerID": "6",
+      "status": "Low",
+      "date": "2024-06-03",
+      "time": "09:00",
+      "FullName": "Ethel Montgomery",
+      "location": "Ground Floor",
+      "carer": "Lucy Carter",
+      "trigger": "Skips breakfast",
+      "Behavior": "Reads mystery novels and enjoys short morning walks.",
+      "Support": "Meals on Wheels delivery",
+      "event": "Breakfast skipped"
+    },
+    "alert7": {
+      "id": "7",
+      "wearerID": "1",
+      "status": "Low",
+      "date": "2024-06-03",
+      "time": "18:30",
+      "FullName": "Maya Perera",
+      "location": "Third Floor",
+      "carer": "James Wong",
+      "trigger": "Falls in bathroom",
+      "Behavior": "Social, likes group games and storytelling, sometimes restless in evenings.",
+      "Support": "Weekly physiotherapy sessions",
+      "event": "Bathroom fall incident"
+    }
+  }
+}

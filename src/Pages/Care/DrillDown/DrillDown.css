@@ -1,0 +1,181 @@
+.card_cat_set {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.cardCMA {
+  width: 100%;
+  border: 1px solid #e0e0e0;
+  padding: 20px;
+  border-radius: 6px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0px;
+}
+.cardCMA_Title {
+  font-size: 14px;
+  color: #4b5563;
+  font-weight: 400;
+}
+.count_card {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 7px;
+}
+.count_prasant {
+  font-size: 40px;
+  font-weight: 500;
+  color: #000000;
+}
+.count_prasant_sub {
+  font-size: 16px;
+  color: #4b5563;
+  font-weight: 400;
+  margin-bottom: 5px;
+}
+.ConfidenceTxt {
+  font-size: 14px;
+  color: #4b5563;
+  font-weight: 400;
+}
+.chartCardContiner {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.chartCardDrill {
+  width: 100%;
+  border: 1px solid #e0e0e0;
+  padding: 20px;
+  border-radius: 6px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 20px;
+}
+.chartCardDrill2 {
+  width: 49%;
+  border: 1px solid #e0e0e0;
+  padding: 20px;
+  border-radius: 6px;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 20px;
+}
+.chartCardbody {
+  width: 100%;
+  flex-direction: column;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 10px;
+}
+.chartCardtitle {
+  font-size: 16px;
+  color: #000000;
+  font-weight: 500;
+}
+
+.chartCardbodyData {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+}
+.chartCardbodyDataTit {
+  font-size: 16px;
+  color: #4b5563;
+  font-weight: 400;
+}
+.chartCardbodyDataans {
+  font-size: 16px;
+  color: #673a8f;
+  font-weight: 500;
+}
+.chartBx {
+  width: 100%;
+}
+.chartCardHed {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.chartCardlink {
+  font-size: 13px;
+  color: #673a8f;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-style: italic;
+}
+.chartCardlink:hover {
+  text-decoration: underline;
+}
+.chartCardContiner {
+  width: 100%;
+}
+.cardbodyDrill {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+}
+.cardbodyDrill2 {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+}
+.fullChartCont {
+  width: 100%;
+  border: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.chart_Title {
+  text-align: end;
+  width: 98%;
+  margin-top: 3px;
+  font-size: 14px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.chartCardRowsub {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 10px;
+}
+.zoombtn {
+  padding: 5px 10px;
+  background-color: #44b649;
+  border: 1px solid #44b649;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  color: white;
+}
+.zoomControls{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

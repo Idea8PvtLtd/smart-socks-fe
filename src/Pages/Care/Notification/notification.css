@@ -1,0 +1,140 @@
+.notificationContainer {
+  position: fixed;
+  z-index: 10000;
+}
+.notificationCard {
+  background-color: #fff;
+  width: 450px;
+  height: 500px;
+  position: fixed;
+  right: 25px;
+  top: 60px;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  animation: slideIn 0.3s ease-out;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+}
+.wnamee{
+  font-size: 12px;
+  color: #555;
+  margin-top: -5px;
+  font-style: italic;
+}
+.addnoteicon{
+  font-size: 20px;
+  color: #303030;
+  cursor: pointer;
+}
+.notyheader {
+  flex: 0 0 auto;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  font-weight: 600;
+}
+
+.notybody {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 10px;
+}
+
+.notificationCardItem {
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  flex-direction: column;
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 4px;
+  gap: 8px;
+}
+.notificationCardTitle {
+  font-size: 18px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+.notyActionCard {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.notyTimeCard {
+  display: flex;
+  gap: 15px;
+}
+.notyTime,
+.notyDate {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: center;
+  font-size: 14px;
+  color: #303030;
+}
+.notyactionCardBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.markReadTick {
+  font-size: 23px;
+  cursor: pointer;
+  color: #303030;
+}
+.NotReadTick {
+  color: #44b649;
+}
+.notyDlt {
+  color: red;
+  font-size: 20px;
+  cursor: pointer;
+}
+.notificationCardItemNoRead {
+  border: 1px solid #44b649;
+  background-color: #44b64a11;
+}
+.notificationCardHead {
+  width: 100%;
+  display: flex;
+  padding: 0 5px 0 10px 0;
+  align-items: center;
+  justify-content: space-between;
+}
+.notificationCardFoot {
+  width: 100%;
+  display: flex;
+  padding: 10px 0 5px 0;
+  align-items: center;
+  justify-content: space-between;
+}
+.notificationCardHeadTit {
+  text-transform: uppercase;
+  font-size: 17px;
+  font-weight: 600;
+}
+.notificationCardHeadIcon {
+  font-size: 23px;
+  cursor: pointer;
+  color: #303030;
+}
+.notificationCardfootTit {
+  cursor: pointer;
+  text-transform: uppercase;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 12px;
+  color: #30303090;
+}
+.notificationCardfootTit:hover {
+  color: #44b649;
+}

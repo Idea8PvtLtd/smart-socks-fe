@@ -1,0 +1,263 @@
+.actionLins {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.form-row {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+}
+/* Wrapper row visually like the screenshot */
+.uploadRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f4f8fd; /* soft blue tint */
+  border: 1px solid #e6eef8;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+/* Square preview box */
+.uploadPreview {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  background: #eef3f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.uploadPreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Placeholder icon (simple) */
+.imgIcon {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(
+    135deg,
+    #d7dfeb 25%,
+    #c7d2e3 25% 50%,
+    #d7dfeb 50% 75%,
+    #c7d2e3 75%
+  );
+  border-radius: 6px;
+  display: inline-block;
+}
+
+/* Controls area */
+.uploadControls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Hint line */
+.uploadHint {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+  width: 100%;
+}
+
+/* Styled button over hidden input */
+.uploadBtn {
+  position: relative;
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #cfd8e3;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+}
+.uploadBtn input {
+  display: none;
+}
+
+/* File name text */
+.fileName {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Error text */
+.errorText {
+  width: 100%;
+  font-size: 12px;
+  color: #d14343;
+  margin-top: -2px;
+}
+.tblWrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #fff;
+  border: 1px solid #eef2f7;
+}
+
+/* Table */
+.tbl {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-size: 14px;
+}
+
+/* Header */
+.tbl thead th {
+  text-align: left;
+  padding: 12px 14px;
+  background: #673a8f0c;
+  color: #673a8f;
+  text-align: center;
+  font-weight: 600;
+  border: 1px solid #eef2f7;
+}
+
+/* Cells */
+.tbl tbody td {
+  padding: 12px 14px;
+  border: 1px solid #eef2f7;
+  vertical-align: middle;
+}
+
+.tbl tbody tr:hover td {
+  background: #673a8f0c;
+}
+
+/* Avatar cell */
+.avatarCell {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #eef3f7;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.avatarCell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Actions */
+.actionsCol {
+  white-space: nowrap;
+  width: 120px;
+}
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  width: 36px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  cursor: pointer;
+  margin-right: 8px;
+  transition: transform 0.05s ease, background 0.2s ease;
+}
+.iconBtn:hover {
+  background: #673a8f1b;
+}
+.iconBtn:active {
+  transform: translateY(1px);
+}
+.iconBtn.edit svg {
+  color: #673a8f;
+} /* blue */
+.iconBtn.delete svg {
+  color: #dc2626;
+} /* red */
+
+/* Compact on tablet */
+@media (max-width: 1024px) {
+  .tbl {
+    min-width: 620px;
+  }
+  .tbl thead th,
+  .tbl tbody td {
+    padding: 10px 12px;
+  }
+  .actionsCol {
+    width: 100px;
+  }
+}
+.delete-modal {
+  max-width: 400px;
+  padding: 25px;
+  text-align: center;
+}
+
+.delete-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.delete-icon {
+  color: #e63946;
+}
+
+.delete-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  text-transform: capitalize;
+}
+
+.delete-text {
+  font-size: 15px;
+  color: #555;
+}
+.modal-cncl {
+  border: 1px solid #e63946;
+  color: #e63946;
+  background-color: white;
+  font-size: 17px;
+  padding: 8px 18px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  margin-right: 10px;
+  width: 100%;
+}
+.modal-del {
+  background-color: #e63946;
+  border: none;
+  color: white;
+  padding: 8px 18px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 17px;
+  transition: 0.2s ease;
+  width: 100%;
+}
+
+.modal-del:hover {
+  background-color: #c71c2c;
+}
+.password-toggle-icon {
+  position: absolute;
+  right: 12px;
+  top: 74%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 22px;
+  color: #673a8f;
+}

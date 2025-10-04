@@ -1,0 +1,54 @@
+{
+  "Socks": {
+    "socks1": {
+      "id": 1,
+      "SerialNumber": "#0147852",
+      "CarerName": "John Doe",
+      "ConnectionStrength": "Strong",
+      "BatteryLevel": "85%",
+      "BatteryStatus": "Charging"
+    },
+    "socks2": {
+      "SerialNumber": "#0246895",
+      "CarerName": "Sakila Perera",
+      "ConnectionStrength": "Weak",
+      "BatteryLevel": "45%",
+      "BatteryStatus": "Discharging"
+    },
+    "socks3": {
+      "SerialNumber": "#0369841",
+      "CarerName": "Nimal Raj",
+      "ConnectionStrength": "Moderate",
+      "BatteryLevel": "60%",
+      "BatteryStatus": "Charging"
+    },
+    "socks4": {
+      "SerialNumber": "#0481593",
+      "CarerName": "Sandra Li",
+      "ConnectionStrength": "Strong",
+      "BatteryLevel": "90%",
+      "BatteryStatus": "Full"
+    },
+    "socks5": {
+      "SerialNumber": "#0592638",
+      "CarerName": "Dilrukshan Senanayake",
+      "ConnectionStrength": "Weak",
+      "BatteryLevel": "30%",
+      "BatteryStatus": "Discharging"
+    },
+    "socks6": {
+      "SerialNumber": "#0625471",
+      "CarerName": "Kasun Madura",
+      "ConnectionStrength": "Moderate",
+      "BatteryLevel": "55%",
+      "BatteryStatus": "Charging"
+    },
+    "socks7": {
+      "SerialNumber": "#0784216",
+      "CarerName": "John Doe",
+      "ConnectionStrength": "Strong",
+      "BatteryLevel": "80%",
+      "BatteryStatus": "Full"
+    }
+  }
+}

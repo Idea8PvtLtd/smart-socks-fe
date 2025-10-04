@@ -1,0 +1,38 @@
+.careFromBdy{
+    width: 100%;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+
+}
+.labelFlex{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.plusIcon{
+    color: #673a8f;
+    font-size: 30px;
+    cursor: pointer;
+
+}
+.plusIcon:hover{
+    color: #512d6d;
+    color: #594966;
+}
+.careAreaflex{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.dltIcon{
+    color: #e63946;
+    font-size: 25px;
+    cursor: pointer;
+}
+.dltIcon:hover{
+    color: #b71c1c;
+}

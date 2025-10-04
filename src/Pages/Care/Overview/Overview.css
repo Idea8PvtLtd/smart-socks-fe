@@ -1,0 +1,328 @@
+.dashone {
+  width: 1500px;
+  margin: 0 auto;
+}
+.subContinerCard {
+  width: 100%;
+  display: flex;
+  gap: 15px;
+  flex-direction: column;
+}
+.dashcon {
+  width: 100%;
+  padding: 100px 20px 20px 290px;
+}
+.namedatarwo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+  flex-direction: column;
+}
+.wearerAreaa {
+  font-size: 15px;
+  color: #6b7280;
+  font-style: italic;
+}
+.continercard {
+  display: flex;
+  gap: 40px;
+  flex-direction: column;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+.cardheader {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+.titel {
+  text-transform: uppercase;
+}
+.controls {
+  display: flex;
+  gap: 25px;
+}
+.select_drop {
+  padding: 5px 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  background-color: white;
+  cursor: pointer;
+  width: 250px;
+  font-size: 15px;
+}
+.searchBox {
+  padding: 5px 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  background-color: white;
+  cursor: pointer;
+  width: 250px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.dateBox {
+  padding: 5px 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  background-color: white;
+  cursor: pointer;
+  width: 180px;
+  display: flex;
+}
+.dateInput {
+  border: 0;
+  font-size: 15px;
+  width: 100%;
+  cursor: pointer;
+}
+.searchInput {
+  border: 0;
+  font-size: 15px;
+  width: 90%;
+}
+.searchIcon {
+  color: #5d5d5d;
+  font-size: 18px;
+}
+.searchInput:focus {
+  outline: none;
+}
+.statusSet {
+  display: flex;
+  gap: 25px;
+}
+.statusCard {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+}
+.high {
+  width: 10px;
+  height: 10px;
+  border-radius: 100%;
+  background-color: #ef4444;
+}
+.Medium {
+  width: 10px;
+  height: 10px;
+  border-radius: 100%;
+  background-color: #f59e0b;
+}
+.Low {
+  width: 10px;
+  height: 10px;
+  border-radius: 100%;
+  background-color: #91c254;
+}
+.statusCardText {
+  font-size: 15px;
+  color: #202020;
+}
+.dataCardSet {
+  display: flex;
+  gap: 25px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+.dataCard {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  background-color: #ffffff;
+  width: 500px;
+  cursor: pointer;
+}
+.dataCard:hover {
+  border: 1px solid #91c254;
+  transition: all 0.3s ease-in-out;
+}
+.dataCardBorder {
+  border: 1.5px solid #ef4444;
+  box-shadow: 0 2px 20px rgba(255, 0, 0, 0.5);
+}
+
+.wearerImage {
+  height: 210px;
+  width: 171px;
+}
+
+.card_data {
+  width: 100%;
+  padding: 12px;
+  display: flex;
+  align-items: start;
+  justify-content: center;
+  flex-direction: column;
+  gap: 25px;
+}
+.flx_row_card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.wearerNameHigh {
+  color: #ef4444;
+}
+.wearerName {
+  font-size: 20px;
+  font-weight: 600;
+  color: #202020;
+}
+.wearerAge {
+  font-size: 15px;
+  color: #5d5d5d;
+  font-weight: 500;
+}
+.device_data {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+}
+.wearerWifi {
+  font-size: 15px;
+  color: #5d5d5d;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 5px;
+  font-weight: 400;
+}
+.wearerBattery {
+  font-size: 15px;
+  color: #5d5d5d;
+  font-weight: 400;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 5px;
+}
+.wearerDeviceStatus {
+  font-size: 15px;
+  color: #5d5d5d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-weight: 400;
+}
+.statusDotOnline {
+  width: 10px;
+  height: 10px;
+  border-radius: 100%;
+  background-color: #91c254;
+}
+.statusDotOffline {
+  width: 10px;
+  height: 10px;
+  border-radius: 100%;
+  background-color: #ef4444;
+}
+.chartCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.meter-row {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+.card_iconRow {
+  color: #91c254;
+  font-size: 16px;
+}
+.card_iconRow_dis {
+  color: #2d2d2d;
+  font-size: 16px;
+}
+.meter {
+  position: relative;
+  height: 15px;
+  width: 150px;
+  border-radius: 50px;
+  background: #31303033;
+  box-shadow: inset 0 0 0 1px #e6e6e6;
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  border-radius: 50px;
+  transition: width 240ms ease;
+}
+
+.green-bar {
+  background-color: #91c254;
+}
+.amber-bar {
+  background-color: #f59e0b;
+}
+.red-bar {
+  background-color: #ef4444;
+}
+
+.meter-baseline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 2px;
+  background: #2e2e2e;
+  opacity: 0.9;
+}
+
+.meter-label {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 120px;
+}
+
+.meter-label-text {
+  color: #2d2d2d;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.meter-value {
+  color: #6b7280;
+  font-size: 14px;
+  font-style: italic;
+  line-height: 1;
+}
+
+@media (max-width: 420px) {
+  .meter {
+    width: 140px;
+  }
+}
+
+@media (max-width: 1500px) {
+  .dashone {
+    width: 100%;
+    margin: 0 auto;
+  }
+  .subContinerCard {
+    width: 100%;
+    display: flex;
+    gap: 15px;
+    flex-direction: column;
+  }
+  .dashcon {
+    width: 100%;
+    padding:90px 20px;
+  }
+}

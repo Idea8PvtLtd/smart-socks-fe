@@ -1,0 +1,255 @@
+.controls_nav {
+  display: flex;
+  gap: 20px;
+}
+.controls_nav_con {
+  cursor: pointer;
+  padding-bottom: 3px;
+}
+.controls_nav_con_active {
+  border-bottom: 2px solid #673a8f;
+  color: #673a8f;
+}
+.addObservationBtn {
+  padding: 8px 15px;
+  background-color: #673a8f;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+.controls_nav_con:hover {
+  border-bottom: 2px solid #673a8f;
+  color: #673a8f;
+}
+.controls_nav_menu {
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.successCard_titel {
+  color: #44b649;
+  font-size: 19px;
+}
+.notCard_titel {
+  color: #ef4444;
+  font-size: 19px;
+}
+.successCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #44b649;
+  border-radius: 5px;
+  background-color: #44b64a0f;
+  width: 500px;
+  gap: 15px;
+  cursor: pointer;
+  padding: 15px;
+}
+.notCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #ef4444;
+  border-radius: 5px;
+  background-color: #ef44440f;
+  width: 325px;
+  gap: 15px;
+  cursor: pointer;
+  padding: 15px;
+}
+.notCardNew {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #ef4444;
+  border-radius: 5px;
+  background-color: #ef44440f;
+  width: 500px;
+  gap: 15px;
+  cursor: pointer;
+  padding: 15px;
+}
+
+.hed_leftAro {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.arrow_line {
+  font-size: 20px;
+  cursor: pointer;
+}
+.dataNewCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #673a8f;
+  border-radius: 5px;
+  background-color: #673a8f0f;
+  width: 325px;
+  gap: 15px;
+  cursor: pointer;
+  padding: 15px;
+}
+.dataNewCard_titel {
+  color: #673a8f;
+  font-size: 19px;
+  text-transform: uppercase;
+}
+.successCardData {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 6px;
+}
+.successCard_para {
+  font-size: 17px;
+  font-weight: 500;
+}
+.cardbodyProfile {
+  width: 100%;
+  display: flex;
+  gap: 20px;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+.dataCardSetNew {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 25px;
+}
+
+.alert_card_set {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.alert_card {
+  width: 500px;
+  border: 1px solid #4e4e4e;
+  padding: 0 15px 15px 15px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  cursor: pointer;
+}
+.obs_card {
+  width: 500px;
+  border: 1px solid #4e4e4e;
+  padding: 15px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  gap: 20px;
+}
+.alert_card_High {
+  width: 500px;
+  border: 1px solid #ef4444;
+  padding: 0 15px 15px 15px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  cursor: pointer;
+}
+.alert_date_timecard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+.alert_date_time {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  justify-content: center;
+}
+.alert_card_head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+.alert_card_status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 40px;
+  border-radius: 0 0 9px 9px;
+  color: white;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.alert_card_status_high {
+  background-color: #ef4444;
+}
+.alert_card_status_medium {
+  background-color: #f59e0b;
+}
+.alert_card_status_low {
+  background-color: #22c55e;
+}
+
+.alert_date_time_txt {
+  font-style: italic;
+  font-size: 14px;
+  color: gray;
+  font-weight: 500;
+}
+.alert_date_time_icon {
+  font-size: 15px;
+}
+.wearer_name {
+  text-transform: uppercase;
+  font-size: 18px;
+  font-weight: 500;
+  color: #44b649;
+}
+.dataTextCard {
+  font-size: 18px;
+}
+.dataTextCardTg {
+  font-weight: 500;
+  color: #673a8f;
+}
+.alert_card_body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+.socksId{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 25px;
+}
+.socksNames{
+  font-size: 17px;
+  font-weight: 500;
+  padding-top: 10px;
+}
+.socksIdData{
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 0 0 15px;
+  
+}
+.successCard_titel{
+  text-transform: uppercase;
+}
