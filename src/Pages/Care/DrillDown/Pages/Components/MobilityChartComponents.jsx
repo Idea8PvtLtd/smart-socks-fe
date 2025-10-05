@@ -1,22 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import uPlot from "uplot";
 import "uplot/dist/uPlot.min.css";
+import { stepTimeVariationChartPush, turnsChartPush, symmetryProxyChartPush, cadenceChartPush } from '../../../../../utils/MobilitySubChartsPush';
 
-// ---------- Data ----------
-const X = [1980, 1982, 1984, 1986, 1988, 1990, 1992, 1994, 1996];
-const Cadence = [0.108, 0.112, 0.116, 0.118, 0.117, 0.113, 0.108, 0.103, 0.096];
-const Symmetry = [0.78, 0.70, 0.64, 0.55, 0.48, 0.44, 0.40, 0.37, 0.34];
-const Turns = [0.36, 0.35, 0.33, 0.30, 0.27, 0.25, 0.23, 0.21, 0.20];
-const Stride = [0.36, 0.35, 0.33, 0.30, 0.27, 0.25, 0.23, 0.21, 0.20];
-
-const SERIES = [
-    { key: "Cadence", color: "#FF00C8", data: Cadence },
-    { key: "Symmetry Proxy", color: "#00A661", data: Symmetry },
-    { key: "Turns", color: "#EF4444", data: Turns },
-    { key: "Stride variability", color: "#0B3EF5", data: Stride },
-];
-
-const STORAGE_KEY = "chart_annotations";
+const STORAGE_KEY = "mobility_chart_annotations";
 
 // ---------- Helpers ----------
 function padRange(arr, pct = 0.12) {
@@ -57,6 +44,7 @@ function MobilityChartComponents() {
         const saved = localStorage.getItem(STORAGE_KEY);
         return saved ? JSON.parse(saved) : [];
     });
+    const [liveData, setLiveData] = useState({ X: [], Cadence: [], Symmetry: [], Turns: [], StepTime: [] });
     const [showModal, setShowModal] = useState(false);
     const [showViewModal, setShowViewModal] = useState(false);
     const [currentNote, setCurrentNote] = useState("");
@@ -65,15 +53,87 @@ function MobilityChartComponents() {
     const annotationHitboxes = useRef([]);
     const annotationTooltip = useRef(null);
 
-    // Save to localStorage whenever annotations change
+    // Save annotations to localStorage
     useEffect(() => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(annotations));
     }, [annotations]);
 
+    // Fetch live data from CSV files
     useEffect(() => {
-        if (!chartRef.current) return;
+        const updateChartData = () => {
+            const cadenceData = cadenceChartPush.getCurrentData();
+            const symmetryData = symmetryProxyChartPush.getCurrentData();
+            const turnsData = turnsChartPush.getCurrentData();
+            const stepTimeData = stepTimeVariationChartPush.getCurrentData();
 
-        const { data, laneMeta, yRange } = makeLanesTransformed(X, SERIES);
+            // Find common timestamps
+            const allTimestamps = new Set();
+            [cadenceData, symmetryData, turnsData, stepTimeData].forEach(dataset => {
+                dataset.forEach(point => allTimestamps.add(point.time));
+            });
+
+            const timestamps = Array.from(allTimestamps).sort((a, b) => a - b);
+
+            // Create lookup maps
+            const cadenceMap = new Map(cadenceData.map(d => [d.time, d.value]));
+            const symmetryMap = new Map(symmetryData.map(d => [d.time, d.value]));
+            const turnsMap = new Map(turnsData.map(d => [d.time, d.value]));
+            const stepTimeMap = new Map(stepTimeData.map(d => [d.time, d.value]));
+
+            // Build aligned arrays
+            const cadence = timestamps.map(t => cadenceMap.get(t) ?? null);
+            const symmetry = timestamps.map(t => symmetryMap.get(t) ?? null);
+            const turns = timestamps.map(t => turnsMap.get(t) ?? null);
+            const stepTime = timestamps.map(t => stepTimeMap.get(t) ?? null);
+
+            setLiveData({
+                X: timestamps,
+                Cadence: cadence,
+                Symmetry: symmetry,
+                Turns: turns,
+                StepTime: stepTime
+            });
+        };
+
+        // Add listeners
+        cadenceChartPush.addListener(updateChartData);
+        symmetryProxyChartPush.addListener(updateChartData);
+        turnsChartPush.addListener(updateChartData);
+        stepTimeVariationChartPush.addListener(updateChartData);
+
+        // Start live updates
+        cadenceChartPush.startLiveUpdates();
+        symmetryProxyChartPush.startLiveUpdates();
+        turnsChartPush.startLiveUpdates();
+        stepTimeVariationChartPush.startLiveUpdates();
+
+        // Initial update
+        updateChartData();
+
+        return () => {
+            cadenceChartPush.removeListener(updateChartData);
+            symmetryProxyChartPush.removeListener(updateChartData);
+            turnsChartPush.removeListener(updateChartData);
+            stepTimeVariationChartPush.removeListener(updateChartData);
+
+            cadenceChartPush.stopLiveUpdates();
+            symmetryProxyChartPush.stopLiveUpdates();
+            turnsChartPush.stopLiveUpdates();
+            stepTimeVariationChartPush.stopLiveUpdates();
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!chartRef.current || liveData.X.length === 0) return;
+
+        const SERIES = [
+            { key: "Cadence", color: "#FF00C8", data: liveData.Cadence },
+            { key: "Symmetry Proxy", color: "#00A661", data: liveData.Symmetry },
+            { key: "Turns", color: "#EF4444", data: liveData.Turns },
+            { key: "Stride variability", color: "#0B3EF5", data: liveData.StepTime },
+        ];
+
+        const { data, laneMeta, yRange } = makeLanesTransformed(liveData.X, SERIES);
         const N = SERIES.length;
 
         const tooltip = document.createElement("div");
@@ -90,7 +150,6 @@ function MobilityChartComponents() {
         });
         chartRef.current.appendChild(tooltip);
 
-        // Create annotation tooltip
         const annTooltip = document.createElement("div");
         Object.assign(annTooltip.style, {
             position: "absolute",
@@ -119,7 +178,12 @@ function MobilityChartComponents() {
                 {
                     scale: "x",
                     grid: { show: true },
-                    values: (u, vals) => vals.map(v => v.toString()),
+                    values: (u, vals) => vals.map(v => {
+                        const date = new Date(v * 1000);
+                        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                        const day = date.getDate().toString().padStart(2, '0');
+                        return `${month}/${day}`;
+                    }),
                 },
                 {
                     scale: "y",
@@ -198,24 +262,19 @@ function MobilityChartComponents() {
                             }
                         });
 
-                        // Clear and rebuild hitboxes on every draw
                         annotationHitboxes.current = [];
 
-                        annotations.forEach((ann, index) => {
-                            // Convert data values to canvas pixel positions
+                        annotations.forEach((ann) => {
                             const xPx = u.valToPos(ann.x, "x", true);
                             const yPx = u.valToPos(ann.y, "y", true);
 
-                            // Store hitbox with ABSOLUTE pixel positions (not relative)
                             annotationHitboxes.current.push({
                                 xPx: xPx,
                                 yPx: yPx,
                                 radius: 10,
-                                annotation: ann,
-                                index: index
+                                annotation: ann
                             });
 
-                            // Draw marker circle at exact point
                             ctx.fillStyle = "#362b44";
                             ctx.beginPath();
                             ctx.arc(xPx, yPx, 6, 0, 2 * Math.PI);
@@ -267,21 +326,19 @@ function MobilityChartComponents() {
                         }
 
                         const yVal = u.posToVal(topPx, "y");
-                        const N = SERIES.length;
                         let lane = Math.floor(yVal);
                         lane = Math.max(0, Math.min(N - 1, lane));
 
-
                         const s = SERIES[lane];
-                        const year = X[idx];
+                        const timestamp = liveData.X[idx];
+                        const date = new Date(timestamp * 1000);
+                        const dateStr = date.toLocaleDateString();
                         const yOrig = s.data[idx];
 
-                        // Get absolute mouse position in canvas coordinates
                         const mouseXCanvas = u.bbox.left + leftPx;
                         const mouseYCanvas = u.bbox.top + topPx;
                         let hoveringAnnotation = null;
 
-                        // Check hitboxes using absolute coordinates
                         for (const hitbox of annotationHitboxes.current) {
                             const dx = mouseXCanvas - hitbox.xPx;
                             const dy = mouseYCanvas - hitbox.yPx;
@@ -295,7 +352,6 @@ function MobilityChartComponents() {
                         }
 
                         if (hoveringAnnotation) {
-                            // Show annotation tooltip with full note
                             tooltip.style.display = "none";
                             annTooltip.innerHTML = hoveringAnnotation.note;
 
@@ -312,13 +368,12 @@ function MobilityChartComponents() {
                             annTooltip.style.top = Math.max(10, Math.min(yPix, maxY)) + "px";
                             annTooltip.style.display = "block";
                         } else {
-                            // Show regular tooltip
                             chartRef.current.style.cursor = 'crosshair';
                             annTooltip.style.display = "none";
 
                             tooltip.innerHTML = `
                               <div style="font-weight:600; color:white; margin-bottom:5px;">${s.key}</div>
-                                <div><b>${yOrig?.toFixed(3) ?? "—"}</b> | ${year}</div>
+                                <div><b>${yOrig?.toFixed(3) ?? "—"}</b> | ${dateStr}</div>
                             `;
 
                             const mouseXAbs = u.bbox.left + leftPx;
@@ -397,7 +452,6 @@ function MobilityChartComponents() {
             const mouseXAbs = e.clientX;
             const mouseYAbs = e.clientY;
 
-            // Check if clicked on an annotation using absolute coordinates
             for (const hitbox of annotationHitboxes.current) {
                 const dx = mouseXAbs - hitbox.xPx;
                 const dy = mouseYAbs - hitbox.yPx;
@@ -410,7 +464,6 @@ function MobilityChartComponents() {
                 }
             }
 
-            // Add new annotation
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
             const offsetX = mouseX - chart.bbox.left;
@@ -444,7 +497,7 @@ function MobilityChartComponents() {
             tooltip.remove();
             annTooltip.remove();
         };
-    }, [annotations]);
+    }, [annotations, liveData]);
 
     const handleSaveNote = () => {
         if (currentNote.trim() && pendingAnnotation) {

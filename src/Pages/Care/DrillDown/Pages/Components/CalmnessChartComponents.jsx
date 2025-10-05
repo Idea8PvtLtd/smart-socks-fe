@@ -1,22 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import uPlot from "uplot";
 import "uplot/dist/uPlot.min.css";
+import { pulseRateVariabilityChartPush, pulseRateChartPush, skinConductanceChartPush, skinTemperatureChartPush } from '../../../../../utils/CalmnessSubChartsPush';
 
-// ---------- Data ----------
-const X = [1980, 1982, 1984, 1986, 1988, 1990, 1992, 1994, 1996];
-const Hart = [0.108, 0.112, 0.116, 0.118, 0.117, 0.113, 0.108, 0.103, 0.096];
-const Pulse = [0.085, 0.080, 0.072, 0.060, 0.053, 0.050, 0.048, 0.047, 0.046];
-const conductance = [0.78, 0.70, 0.64, 0.55, 0.48, 0.44, 0.40, 0.37, 0.34];
-const Temperature = [0.36, 0.35, 0.33, 0.30, 0.27, 0.25, 0.23, 0.21, 0.20];
-
-const SERIES = [
-    { key: "Pulserate variability", color: "#000000", data: Hart },
-    { key: "Pulse rate", color: "#673A8F", data: Pulse },
-    { key: "Skin conductance", color: "#44B649", data: conductance },
-    { key: "Skin Temperature", color: "#FF6600", data: Temperature },
-];
-
-const STORAGE_KEY = "chart_annotations";
+const STORAGE_KEY = "calmness_chart_annotations";
 
 // ---------- Helpers ----------
 function padRange(arr, pct = 0.12) {
@@ -57,6 +44,7 @@ function CalmnessChartComponents() {
         const saved = localStorage.getItem(STORAGE_KEY);
         return saved ? JSON.parse(saved) : [];
     });
+    const [liveData, setLiveData] = useState({ X: [], PulseRateVar: [], PulseRate: [], SkinCond: [], SkinTemp: [] });
     const [showModal, setShowModal] = useState(false);
     const [showViewModal, setShowViewModal] = useState(false);
     const [currentNote, setCurrentNote] = useState("");
@@ -65,15 +53,87 @@ function CalmnessChartComponents() {
     const annotationHitboxes = useRef([]);
     const annotationTooltip = useRef(null);
 
-    // Save to localStorage whenever annotations change
+    // Save annotations to localStorage
     useEffect(() => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(annotations));
     }, [annotations]);
 
+    // Fetch live data from CSV files
     useEffect(() => {
-        if (!chartRef.current) return;
+        const updateChartData = () => {
+            const pulseRateVarData = pulseRateVariabilityChartPush.getCurrentData();
+            const pulseRateData = pulseRateChartPush.getCurrentData();
+            const skinCondData = skinConductanceChartPush.getCurrentData();
+            const skinTempData = skinTemperatureChartPush.getCurrentData();
 
-        const { data, laneMeta, yRange } = makeLanesTransformed(X, SERIES);
+            // Find common timestamps
+            const allTimestamps = new Set();
+            [pulseRateVarData, pulseRateData, skinCondData, skinTempData].forEach(dataset => {
+                dataset.forEach(point => allTimestamps.add(point.time));
+            });
+            
+            const timestamps = Array.from(allTimestamps).sort((a, b) => a - b);
+
+            // Create lookup maps
+            const pulseRateVarMap = new Map(pulseRateVarData.map(d => [d.time, d.value]));
+            const pulseRateMap = new Map(pulseRateData.map(d => [d.time, d.value]));
+            const skinCondMap = new Map(skinCondData.map(d => [d.time, d.value]));
+            const skinTempMap = new Map(skinTempData.map(d => [d.time, d.value]));
+
+            // Build aligned arrays
+            const pulseRateVar = timestamps.map(t => pulseRateVarMap.get(t) ?? null);
+            const pulseRate = timestamps.map(t => pulseRateMap.get(t) ?? null);
+            const skinCond = timestamps.map(t => skinCondMap.get(t) ?? null);
+            const skinTemp = timestamps.map(t => skinTempMap.get(t) ?? null);
+
+            setLiveData({
+                X: timestamps,
+                PulseRateVar: pulseRateVar,
+                PulseRate: pulseRate,
+                SkinCond: skinCond,
+                SkinTemp: skinTemp
+            });
+        };
+
+        // Add listeners
+        pulseRateVariabilityChartPush.addListener(updateChartData);
+        pulseRateChartPush.addListener(updateChartData);
+        skinConductanceChartPush.addListener(updateChartData);
+        skinTemperatureChartPush.addListener(updateChartData);
+
+        // Start live updates
+        pulseRateVariabilityChartPush.startLiveUpdates();
+        pulseRateChartPush.startLiveUpdates();
+        skinConductanceChartPush.startLiveUpdates();
+        skinTemperatureChartPush.startLiveUpdates();
+
+        // Initial update
+        updateChartData();
+
+        return () => {
+            pulseRateVariabilityChartPush.removeListener(updateChartData);
+            pulseRateChartPush.removeListener(updateChartData);
+            skinConductanceChartPush.removeListener(updateChartData);
+            skinTemperatureChartPush.removeListener(updateChartData);
+
+            pulseRateVariabilityChartPush.stopLiveUpdates();
+            pulseRateChartPush.stopLiveUpdates();
+            skinConductanceChartPush.stopLiveUpdates();
+            skinTemperatureChartPush.stopLiveUpdates();
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!chartRef.current || liveData.X.length === 0) return;
+
+        const SERIES = [
+            { key: "Pulserate variability", color: "#000000", data: liveData.PulseRateVar },
+            { key: "Pulse rate", color: "#673A8F", data: liveData.PulseRate },
+            { key: "Skin conductance", color: "#44B649", data: liveData.SkinCond },
+            { key: "Skin Temperature", color: "#FF6600", data: liveData.SkinTemp },
+        ];
+
+        const { data, laneMeta, yRange } = makeLanesTransformed(liveData.X, SERIES);
         const N = SERIES.length;
 
         const tooltip = document.createElement("div");
@@ -90,7 +150,6 @@ function CalmnessChartComponents() {
         });
         chartRef.current.appendChild(tooltip);
 
-        // Create annotation tooltip
         const annTooltip = document.createElement("div");
         Object.assign(annTooltip.style, {
             position: "absolute",
@@ -119,7 +178,12 @@ function CalmnessChartComponents() {
                 {
                     scale: "x",
                     grid: { show: true },
-                    values: (u, vals) => vals.map(v => v.toString()),
+                    values: (u, vals) => vals.map(v => {
+                        const date = new Date(v * 1000);
+                        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                        const day = date.getDate().toString().padStart(2, '0');
+                        return `${month}/${day}`;
+                    }),
                 },
                 {
                     scale: "y",
@@ -198,24 +262,19 @@ function CalmnessChartComponents() {
                             }
                         });
 
-                        // Clear and rebuild hitboxes on every draw
                         annotationHitboxes.current = [];
 
-                        annotations.forEach((ann, index) => {
-                            // Convert data values to canvas pixel positions
+                        annotations.forEach((ann) => {
                             const xPx = u.valToPos(ann.x, "x", true);
                             const yPx = u.valToPos(ann.y, "y", true);
 
-                            // Store hitbox with ABSOLUTE pixel positions (not relative)
                             annotationHitboxes.current.push({
                                 xPx: xPx,
                                 yPx: yPx,
                                 radius: 10,
-                                annotation: ann,
-                                index: index
+                                annotation: ann
                             });
 
-                            // Draw marker circle at exact point
                             ctx.fillStyle = "#362b44";
                             ctx.beginPath();
                             ctx.arc(xPx, yPx, 6, 0, 2 * Math.PI);
@@ -267,21 +326,19 @@ function CalmnessChartComponents() {
                         }
 
                         const yVal = u.posToVal(topPx, "y");
-                        const N = SERIES.length;
                         let lane = Math.floor(yVal);
                         lane = Math.max(0, Math.min(N - 1, lane));
 
-
                         const s = SERIES[lane];
-                        const year = X[idx];
+                        const timestamp = liveData.X[idx];
+                        const date = new Date(timestamp * 1000);
+                        const dateStr = date.toLocaleDateString();
                         const yOrig = s.data[idx];
 
-                        // Get absolute mouse position in canvas coordinates
                         const mouseXCanvas = u.bbox.left + leftPx;
                         const mouseYCanvas = u.bbox.top + topPx;
                         let hoveringAnnotation = null;
 
-                        // Check hitboxes using absolute coordinates
                         for (const hitbox of annotationHitboxes.current) {
                             const dx = mouseXCanvas - hitbox.xPx;
                             const dy = mouseYCanvas - hitbox.yPx;
@@ -295,7 +352,6 @@ function CalmnessChartComponents() {
                         }
 
                         if (hoveringAnnotation) {
-                            // Show annotation tooltip with full note
                             tooltip.style.display = "none";
                             annTooltip.innerHTML = hoveringAnnotation.note;
 
@@ -312,13 +368,12 @@ function CalmnessChartComponents() {
                             annTooltip.style.top = Math.max(10, Math.min(yPix, maxY)) + "px";
                             annTooltip.style.display = "block";
                         } else {
-                            // Show regular tooltip
                             chartRef.current.style.cursor = 'crosshair';
                             annTooltip.style.display = "none";
 
                             tooltip.innerHTML = `
                               <div style="font-weight:600; color:white; margin-bottom:5px;">${s.key}</div>
-                                <div><b>${yOrig?.toFixed(3) ?? "—"}</b> | ${year}</div>
+                                <div><b>${yOrig?.toFixed(3) ?? "—"}</b> | ${dateStr}</div>
                             `;
 
                             const mouseXAbs = u.bbox.left + leftPx;
@@ -397,7 +452,6 @@ function CalmnessChartComponents() {
             const mouseXAbs = e.clientX;
             const mouseYAbs = e.clientY;
 
-            // Check if clicked on an annotation using absolute coordinates
             for (const hitbox of annotationHitboxes.current) {
                 const dx = mouseXAbs - hitbox.xPx;
                 const dy = mouseYAbs - hitbox.yPx;
@@ -410,7 +464,6 @@ function CalmnessChartComponents() {
                 }
             }
 
-            // Add new annotation
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
             const offsetX = mouseX - chart.bbox.left;
@@ -444,7 +497,7 @@ function CalmnessChartComponents() {
             tooltip.remove();
             annTooltip.remove();
         };
-    }, [annotations]);
+    }, [annotations, liveData]);
 
     const handleSaveNote = () => {
         if (currentNote.trim() && pendingAnnotation) {

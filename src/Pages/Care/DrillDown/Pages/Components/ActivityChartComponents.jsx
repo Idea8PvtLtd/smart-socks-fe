@@ -1,22 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import uPlot from "uplot";
 import "uplot/dist/uPlot.min.css";
+import { walkingChartPush, stepsChartPush, boutsChartPush, longestBoutChartPush } from '../../../../../utils/ActivitySubChartsPush';
 
-// ---------- Data ----------
-const X = [1980, 1982, 1984, 1986, 1988, 1990, 1992, 1994, 1996];
-const Steps = [0.108, 0.112, 0.116, 0.118, 0.117, 0.113, 0.108, 0.103, 0.096];
-const Bouts = [0.085, 0.080, 0.072, 0.060, 0.053, 0.050, 0.048, 0.047, 0.046];
-const Longest = [0.78, 0.70, 0.64, 0.55, 0.48, 0.44, 0.40, 0.37, 0.34];
-const Walking = [0.36, 0.35, 0.33, 0.30, 0.27, 0.25, 0.23, 0.21, 0.20];
-
-const SERIES = [
-    { key: "Steps", color: "#0077B6", data: Steps },
-    { key: "Walking bouts", color: "#6E9600", data: Bouts },
-    { key: "Longest Bout", color: "#F50B5D", data: Longest },
-    { key: "Walking", color: "#FF0000", data: Walking },
-];
-
-const STORAGE_KEY = "chart_annotations";
 // ---------- Helpers ----------
 function padRange(arr, pct = 0.12) {
     const lo = Math.min(...arr), hi = Math.max(...arr);
@@ -52,10 +38,8 @@ function makeLanesTransformed(X, seriesDefs) {
 function ActivityChartComponents() {
     const chartRef = useRef(null);
     const plotInstance = useRef(null);
-    const [annotations, setAnnotations] = useState(() => {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        return saved ? JSON.parse(saved) : [];
-    });
+    const [annotations, setAnnotations] = useState([]);
+    const [liveData, setLiveData] = useState({ X: [], Steps: [], Bouts: [], Longest: [], Walking: [] });
     const [showModal, setShowModal] = useState(false);
     const [showViewModal, setShowViewModal] = useState(false);
     const [currentNote, setCurrentNote] = useState("");
@@ -64,15 +48,82 @@ function ActivityChartComponents() {
     const annotationHitboxes = useRef([]);
     const annotationTooltip = useRef(null);
 
-    // Save to localStorage whenever annotations change
+    // Fetch live data from CSV files using ActivitySubChartPush
     useEffect(() => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(annotations));
-    }, [annotations]);
+        const updateChartData = () => {
+            const stepsData = stepsChartPush.getCurrentData();
+            const boutsData = boutsChartPush.getCurrentData();
+            const longestData = longestBoutChartPush.getCurrentData();
+            const walkingData = walkingChartPush.getCurrentData();
+
+            // Find common timestamps (intersection)
+            const allTimestamps = new Set();
+            [stepsData, boutsData, longestData, walkingData].forEach(dataset => {
+                dataset.forEach(point => allTimestamps.add(point.time));
+            });
+
+            const timestamps = Array.from(allTimestamps).sort((a, b) => a - b);
+
+            // Create lookup maps
+            const stepsMap = new Map(stepsData.map(d => [d.time, d.value]));
+            const boutsMap = new Map(boutsData.map(d => [d.time, d.value]));
+            const longestMap = new Map(longestData.map(d => [d.time, d.value]));
+            const walkingMap = new Map(walkingData.map(d => [d.time, d.value]));
+
+            // Build aligned arrays
+            const steps = timestamps.map(t => stepsMap.get(t) ?? null);
+            const bouts = timestamps.map(t => boutsMap.get(t) ?? null);
+            const longest = timestamps.map(t => longestMap.get(t) ?? null);
+            const walking = timestamps.map(t => walkingMap.get(t) ?? null);
+
+            setLiveData({
+                X: timestamps,
+                Steps: steps,
+                Bouts: bouts,
+                Longest: longest,
+                Walking: walking
+            });
+        };
+
+        // Add listeners to all data sources
+        stepsChartPush.addListener(updateChartData);
+        boutsChartPush.addListener(updateChartData);
+        longestBoutChartPush.addListener(updateChartData);
+        walkingChartPush.addListener(updateChartData);
+
+        // Start live updates
+        stepsChartPush.startLiveUpdates();
+        boutsChartPush.startLiveUpdates();
+        longestBoutChartPush.startLiveUpdates();
+        walkingChartPush.startLiveUpdates();
+
+        // Initial update
+        updateChartData();
+
+        return () => {
+            stepsChartPush.removeListener(updateChartData);
+            boutsChartPush.removeListener(updateChartData);
+            longestBoutChartPush.removeListener(updateChartData);
+            walkingChartPush.removeListener(updateChartData);
+
+            stepsChartPush.stopLiveUpdates();
+            boutsChartPush.stopLiveUpdates();
+            longestBoutChartPush.stopLiveUpdates();
+            walkingChartPush.stopLiveUpdates();
+        };
+    }, []);
 
     useEffect(() => {
-        if (!chartRef.current) return;
+        if (!chartRef.current || liveData.X.length === 0) return;
 
-        const { data, laneMeta, yRange } = makeLanesTransformed(X, SERIES);
+        const SERIES = [
+            { key: "Steps", color: "#0077B6", data: liveData.Steps },
+            { key: "Walking bouts", color: "#6E9600", data: liveData.Bouts },
+            { key: "Longest Bout", color: "#F50B5D", data: liveData.Longest },
+            { key: "Walking", color: "#FF0000", data: liveData.Walking },
+        ];
+
+        const { data, laneMeta, yRange } = makeLanesTransformed(liveData.X, SERIES);
         const N = SERIES.length;
 
         const tooltip = document.createElement("div");
@@ -89,7 +140,6 @@ function ActivityChartComponents() {
         });
         chartRef.current.appendChild(tooltip);
 
-        // Create annotation tooltip
         const annTooltip = document.createElement("div");
         Object.assign(annTooltip.style, {
             position: "absolute",
@@ -118,7 +168,12 @@ function ActivityChartComponents() {
                 {
                     scale: "x",
                     grid: { show: true },
-                    values: (u, vals) => vals.map(v => v.toString()),
+                    values: (u, vals) => vals.map(v => {
+                        const date = new Date(v * 1000);
+                        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                        const day = date.getDate().toString().padStart(2, '0');
+                        return `${month}/${day}`;
+                    }),
                 },
                 {
                     scale: "y",
@@ -197,24 +252,19 @@ function ActivityChartComponents() {
                             }
                         });
 
-                        // Clear and rebuild hitboxes on every draw
                         annotationHitboxes.current = [];
 
-                        annotations.forEach((ann, index) => {
-                            // Convert data values to canvas pixel positions
+                        annotations.forEach((ann) => {
                             const xPx = u.valToPos(ann.x, "x", true);
                             const yPx = u.valToPos(ann.y, "y", true);
 
-                            // Store hitbox with ABSOLUTE pixel positions (not relative)
                             annotationHitboxes.current.push({
                                 xPx: xPx,
                                 yPx: yPx,
                                 radius: 10,
-                                annotation: ann,
-                                index: index
+                                annotation: ann
                             });
 
-                            // Draw marker circle at exact point
                             ctx.fillStyle = "#362b44";
                             ctx.beginPath();
                             ctx.arc(xPx, yPx, 6, 0, 2 * Math.PI);
@@ -266,21 +316,19 @@ function ActivityChartComponents() {
                         }
 
                         const yVal = u.posToVal(topPx, "y");
-                        const N = SERIES.length;
                         let lane = Math.floor(yVal);
                         lane = Math.max(0, Math.min(N - 1, lane));
 
-                        
                         const s = SERIES[lane];
-                        const year = X[idx];
+                        const timestamp = liveData.X[idx];
+                        const date = new Date(timestamp * 1000);
+                        const dateStr = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
                         const yOrig = s.data[idx];
 
-                        // Get absolute mouse position in canvas coordinates
                         const mouseXCanvas = u.bbox.left + leftPx;
                         const mouseYCanvas = u.bbox.top + topPx;
                         let hoveringAnnotation = null;
 
-                        // Check hitboxes using absolute coordinates
                         for (const hitbox of annotationHitboxes.current) {
                             const dx = mouseXCanvas - hitbox.xPx;
                             const dy = mouseYCanvas - hitbox.yPx;
@@ -294,7 +342,6 @@ function ActivityChartComponents() {
                         }
 
                         if (hoveringAnnotation) {
-                            // Show annotation tooltip with full note
                             tooltip.style.display = "none";
                             annTooltip.innerHTML = hoveringAnnotation.note;
 
@@ -311,13 +358,12 @@ function ActivityChartComponents() {
                             annTooltip.style.top = Math.max(10, Math.min(yPix, maxY)) + "px";
                             annTooltip.style.display = "block";
                         } else {
-                            // Show regular tooltip
                             chartRef.current.style.cursor = 'crosshair';
                             annTooltip.style.display = "none";
 
                             tooltip.innerHTML = `
                               <div style="font-weight:600; color:white; margin-bottom:5px;">${s.key}</div>
-                                <div><b>${yOrig?.toFixed(3) ?? "—"}</b> | ${year}</div>
+                                <div><b>${yOrig?.toFixed(3) ?? "—"}</b> | ${dateStr}</div>
                             `;
 
                             const mouseXAbs = u.bbox.left + leftPx;
@@ -396,7 +442,6 @@ function ActivityChartComponents() {
             const mouseXAbs = e.clientX;
             const mouseYAbs = e.clientY;
 
-            // Check if clicked on an annotation using absolute coordinates
             for (const hitbox of annotationHitboxes.current) {
                 const dx = mouseXAbs - hitbox.xPx;
                 const dy = mouseYAbs - hitbox.yPx;
@@ -409,7 +454,6 @@ function ActivityChartComponents() {
                 }
             }
 
-            // Add new annotation
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
             const offsetX = mouseX - chart.bbox.left;
@@ -443,7 +487,7 @@ function ActivityChartComponents() {
             tooltip.remove();
             annTooltip.remove();
         };
-    }, [annotations]);
+    }, [annotations, liveData]);
 
     const handleSaveNote = () => {
         if (currentNote.trim() && pendingAnnotation) {
