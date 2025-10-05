@@ -1,127 +1,110 @@
 import { useEffect, useRef, useState } from "react";
 import uPlot from "uplot";
 import "uplot/dist/uPlot.min.css";
+import { pulseRateVariabilityChartPush, pulseRateChartPush, skinConductanceChartPush, skinTemperatureChartPush } from '../../../../utils/CalmnessSubChartsPush';
+import { stepTimeVariationChartPush, turnsChartPush, symmetryProxyChartPush, cadenceChartPush } from '../../../../utils/MobilitySubChartsPush';
+import { walkingChartPush, stepsChartPush, boutsChartPush, longestBoutChartPush } from '../../../../utils/ActivitySubChartsPush';
 
-// ---------- Data ----------
-const X = [1980, 1982, 1984, 1986, 1988, 1990, 1992, 1994, 1996];
-const Steps = [12, 15, 18, 22, 28, 31, 29, 25, 20];
-const Bouts = [5.2, 6.1, 7.4, 8.0, 7.8, 7.1, 6.5, 6.0, 5.5];
-const Longest = [42, 39, 37, 33, 28, 25, 21, 18, 15];
-const Walking = [1.2, 1.3, 1.1, 0.9, 0.8, 0.75, 0.7, 0.65, 0.6];
-const Hart = [72, 75, 80, 85, 90, 88, 83, 78, 74];
-const Pulse = [60, 63, 65, 70, 74, 71, 68, 66, 62];
-const conductance = [0.18, 0.22, 0.27, 0.33, 0.38, 0.36, 0.32, 0.28, 0.25];
-const Temperature = [36.4, 36.6, 36.9, 37.2, 37.0, 36.8, 36.5, 36.3, 36.1];
-const Cadence = [110, 115, 120, 125, 122, 118, 114, 111, 109];
-const Step = [0.45, 0.47, 0.49, 0.50, 0.52, 0.51, 0.48, 0.46, 0.44];
-const Symmetry = [0.95, 0.92, 0.90, 0.88, 0.86, 0.85, 0.83, 0.82, 0.80];
-const Turns = [8, 10, 12, 15, 14, 13, 11, 9, 7];
-const Stride = [0.75, 0.80, 0.82, 0.85, 0.83, 0.81, 0.78, 0.76, 0.73];
+// Data source mapping
+const DATA_SOURCES = {
+    Steps: stepsChartPush,
+    Bouts: boutsChartPush,
+    Longest: longestBoutChartPush,
+    Walking: walkingChartPush,
+    Heart: pulseRateVariabilityChartPush,
+    Pulse: pulseRateChartPush,
+    Skin: skinConductanceChartPush,
+    SkinTemperature: skinTemperatureChartPush,
+    Cadence: cadenceChartPush,
+    StepTiming: stepTimeVariationChartPush,
+    SymmetryProxy: symmetryProxyChartPush,
+    Turns: turnsChartPush,
+    Stride: stepTimeVariationChartPush
+};
 
-
-const SERIES = [
-    { id: "toggleSteps", key: "Steps Chart", color: "#0077B6", data: Steps },
-    { id: "toggleBouts", key: "Bouts Chart", color: "#6E9600", data: Bouts },
-    { id: "toggleLongest", key: "Longest Bout Chart", color: "#F50B5D", data: Longest },
-    { id: "toggleWalking", key: "Walking Chart", color: "#FF0000", data: Walking },
-
-    { id: "toggleHeart", key: "Pulserate variability", color: "#000000", data: Hart },
-    { id: "togglePulse", key: "Pulse rate", color: "#673A8F", data: Pulse },
-    { id: "toggleSkin", key: "Skin conductance", color: "#44B649", data: conductance },
-    { id: "toggleSkinTemperature", key: "Skin Temperature", color: "#FF6600", data: Temperature },
-
-    { id: "toggleCadence", key: "Cadence Chart", color: "#FF00C8", data: Cadence },
-    { id: "toggleStepTiming", key: "Step Timing Variation", color: "#FF6600", data: Step },
-    { id: "toggleSymmetryProxy", key: "Symmetry Proxy Chart", color: "#00A661", data: Symmetry },
-    { id: "toggleTurns", key: "Turns Chart", color: "#EF4444", data: Turns },
-    { id: "toggleStride", key: "Stride Time Chart", color: "#0B3EF5", data: Stride },
+const SERIES_CONFIG = [
+    { id: "toggleSteps", key: "Steps Chart", color: "#0077B6", dataKey: "Steps" },
+    { id: "toggleBouts", key: "Bouts Chart", color: "#6E9600", dataKey: "Bouts" },
+    { id: "toggleLongest", key: "Longest Bout Chart", color: "#F50B5D", dataKey: "Longest" },
+    { id: "toggleWalking", key: "Walking Chart", color: "#FF0000", dataKey: "Walking" },
+    { id: "toggleHeart", key: "Pulserate variability", color: "#000000", dataKey: "Heart" },
+    { id: "togglePulse", key: "Pulse rate", color: "#673A8F", dataKey: "Pulse" },
+    { id: "toggleSkin", key: "Skin conductance", color: "#44B649", dataKey: "Skin" },
+    { id: "toggleSkinTemperature", key: "Skin Temperature", color: "#FF6600", dataKey: "SkinTemperature" },
+    { id: "toggleCadence", key: "Cadence Chart", color: "#FF00C8", dataKey: "Cadence" },
+    { id: "toggleStepTiming", key: "Step Timing Variation", color: "#FF6600", dataKey: "StepTiming" },
+    { id: "toggleSymmetryProxy", key: "Symmetry Proxy Chart", color: "#00A661", dataKey: "SymmetryProxy" },
+    { id: "toggleTurns", key: "Turns Chart", color: "#EF4444", dataKey: "Turns" },
+    { id: "toggleStride", key: "Stride Time Chart", color: "#0B3EF5", dataKey: "Stride" },
 ];
 
-// ---------- Database Helper Functions ----------
+// Database Helper Functions
 const DB_KEY = 'compareChart';
 
-// Get the entire database
 const getDatabase = () => {
     const data = localStorage.getItem(DB_KEY);
     return data ? JSON.parse(data) : {};
 };
 
-// Save the entire database
 const saveDatabase = (db) => {
     localStorage.setItem(DB_KEY, JSON.stringify(db));
 };
 
-// Get annotations for specific chart, user, and type
 const getAnnotations = (chartName, userId, chartType) => {
     const db = getDatabase();
-
     if (!chartName || !userId) return [];
-
-    // Navigate through the structure
+    
     const chartData = db[chartName];
     if (!chartData) return [];
-
+    
     const userData = chartData[userId];
     if (!userData) return [];
-
-    // Convert Note1, Note2, etc. back to array
+    
     const annotations = [];
     Object.keys(userData).forEach(key => {
         if (key.startsWith('Note')) {
             const note = userData[key];
-            // Filter by chartType if specified
             if (!chartType || note.chartType === chartType) {
                 annotations.push(note);
             }
         }
     });
-
+    
     return annotations;
 };
 
-// Add new annotation
 const addAnnotation = (chartName, userId, chartType, annotation) => {
     if (!chartName || !userId) return;
-
+    
     const db = getDatabase();
-
-    // Initialize structure if needed
-    if (!db[chartName]) {
-        db[chartName] = {};
-    }
-    if (!db[chartName][userId]) {
-        db[chartName][userId] = {};
-    }
-
-    // Find next available note number
+    
+    if (!db[chartName]) db[chartName] = {};
+    if (!db[chartName][userId]) db[chartName][userId] = {};
+    
     const existingNotes = Object.keys(db[chartName][userId]).filter(k => k.startsWith('Note'));
     const nextNumber = existingNotes.length + 1;
     const noteKey = `Note${nextNumber}`;
-
-    // Save annotation with all required fields
+    
     db[chartName][userId][noteKey] = {
         ...annotation,
         chartName,
         chartType,
         timestamp: new Date().toISOString()
     };
-
+    
     saveDatabase(db);
 };
 
-// Delete annotation
 const deleteAnnotation = (chartName, userId, annotation) => {
     if (!chartName || !userId) return;
-
+    
     const db = getDatabase();
-
+    
     if (!db[chartName] || !db[chartName][userId]) return;
-
-    // Find and delete the matching note
+    
     Object.keys(db[chartName][userId]).forEach(key => {
         if (key.startsWith('Note')) {
             const note = db[chartName][userId][key];
-            // Match by timestamp and coordinates
             if (note.timestamp === annotation.timestamp &&
                 note.x === annotation.x &&
                 note.y === annotation.y) {
@@ -129,11 +112,11 @@ const deleteAnnotation = (chartName, userId, annotation) => {
             }
         }
     });
-
+    
     saveDatabase(db);
 };
 
-// ---------- Helpers ----------
+// Helper Functions
 function padRange(arr, pct = 0.12) {
     const lo = Math.min(...arr), hi = Math.max(...arr);
     const pad = (hi - lo || Math.abs(lo) || 1) * pct;
@@ -165,17 +148,47 @@ function makeLanesTransformed(X, seriesDefs) {
     };
 }
 
-function CompareChartComponents({ toggles, chartType = 'default', chartName = '' }) {
+// Date filtering function
+function filterDataByDateRange(data, startDate, periodUnit) {
+    if (!startDate || !data || data.length === 0) return data;
+    
+    const start = new Date(startDate);
+    let end = new Date(start);
+    
+    switch(periodUnit) {
+        case 'day':
+            end.setDate(end.getDate() + 1);
+            break;
+        case 'week':
+            end.setDate(end.getDate() + 7);
+            break;
+        case 'month':
+            end.setMonth(end.getMonth() + 1);
+            break;
+        case 'year':
+            end.setFullYear(end.getFullYear() + 1);
+            break;
+        default:
+            end.setDate(end.getDate() + 1);
+    }
+    
+    return data.filter(point => {
+        const pointDate = new Date(point.time * 1000);
+        return pointDate >= start && pointDate < end;
+    });
+}
+
+function CompareChartComponents({ toggles, chartType = 'default', periodUnit = 'day', startDate = '' }) {
     const chartRef = useRef(null);
     const plotInstance = useRef(null);
-
-    // Load all annotations for all possible charts
+    const [liveData, setLiveData] = useState({});
+    
     const [allAnnotations, setAllAnnotations] = useState(() => {
         const selectedWearerId = localStorage.getItem('selectedWearerId');
         if (!selectedWearerId) return {};
 
         const annotationsMap = {};
-        SERIES.forEach(series => {
+        SERIES_CONFIG.forEach(series => {
             const chartName = series.id.replace('toggle', '');
             annotationsMap[chartName] = getAnnotations(chartName, selectedWearerId, chartType);
         });
@@ -190,12 +203,60 @@ function CompareChartComponents({ toggles, chartType = 'default', chartName = ''
     const annotationHitboxes = useRef([]);
     const annotationTooltip = useRef(null);
 
-    const activeSeries = SERIES.filter(series => toggles[series.id]);
+    const activeSeries = SERIES_CONFIG.filter(series => toggles[series.id]);
+
+    // Fetch live data
+    useEffect(() => {
+        const updateChartData = () => {
+            const newData = {};
+            
+            SERIES_CONFIG.forEach(series => {
+                const dataSource = DATA_SOURCES[series.dataKey];
+                if (dataSource) {
+                    let rawData = dataSource.getCurrentData();
+                    
+                    // Apply date filtering
+                    if (startDate && periodUnit) {
+                        rawData = filterDataByDateRange(rawData, startDate, periodUnit);
+                    }
+                    
+                    newData[series.dataKey] = rawData;
+                }
+            });
+            
+            setLiveData(newData);
+        };
+
+        // Add listeners
+        Object.values(DATA_SOURCES).forEach(source => {
+            if (source && source.addListener) {
+                source.addListener(updateChartData);
+            }
+        });
+
+        // Start live updates
+        Object.values(DATA_SOURCES).forEach(source => {
+            if (source && source.startLiveUpdates) {
+                source.startLiveUpdates();
+            }
+        });
+
+        updateChartData();
+
+        return () => {
+            Object.values(DATA_SOURCES).forEach(source => {
+                if (source && source.removeListener) {
+                    source.removeListener(updateChartData);
+                }
+                if (source && source.stopLiveUpdates) {
+                    source.stopLiveUpdates();
+                }
+            });
+        };
+    }, [startDate, periodUnit]);
 
     useEffect(() => {
-        if (!chartRef.current) return;
-
-        if (activeSeries.length === 0) {
+        if (!chartRef.current || activeSeries.length === 0) {
             if (plotInstance.current) {
                 plotInstance.current.destroy();
                 plotInstance.current = null;
@@ -203,7 +264,28 @@ function CompareChartComponents({ toggles, chartType = 'default', chartName = ''
             return;
         }
 
-        const { data, laneMeta, yRange } = makeLanesTransformed(X, activeSeries);
+        // Prepare data for active series
+        const allTimestamps = new Set();
+        activeSeries.forEach(series => {
+            const data = liveData[series.dataKey] || [];
+            data.forEach(point => allTimestamps.add(point.time));
+        });
+        
+        const timestamps = Array.from(allTimestamps).sort((a, b) => a - b);
+        
+        if (timestamps.length === 0) return;
+
+        const seriesWithData = activeSeries.map(series => {
+            const dataMap = new Map((liveData[series.dataKey] || []).map(d => [d.time, d.value]));
+            const values = timestamps.map(t => dataMap.get(t) ?? null);
+            
+            return {
+                ...series,
+                data: values
+            };
+        });
+
+        const { data, laneMeta, yRange } = makeLanesTransformed(timestamps, seriesWithData);
 
         const tooltip = document.createElement("div");
         const annTooltip = document.createElement("div");
@@ -249,7 +331,12 @@ function CompareChartComponents({ toggles, chartType = 'default', chartName = ''
                 {
                     scale: "x",
                     grid: { show: true },
-                    values: (u, vals) => vals.map(v => v.toString()),
+                    values: (u, vals) => vals.map(v => {
+                        const date = new Date(v * 1000);
+                        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                        const day = date.getDate().toString().padStart(2, '0');
+                        return `${month}/${day}`;
+                    }),
                 },
                 {
                     scale: "y",
@@ -259,7 +346,7 @@ function CompareChartComponents({ toggles, chartType = 'default', chartName = ''
             ],
             series: [
                 {},
-                ...activeSeries.map((s) => ({
+                ...seriesWithData.map((s) => ({
                     label: s.key,
                     stroke: s.color,
                     width: 2.5,
@@ -330,24 +417,16 @@ function CompareChartComponents({ toggles, chartType = 'default', chartName = ''
 
                         annotationHitboxes.current = [];
 
-                        // Draw annotations only for active series and in correct lanes
                         activeSeries.forEach((series, laneIndex) => {
                             const chartName = series.id.replace('toggle', '');
                             const annotations = allAnnotations[chartName] || [];
 
-                            annotations.forEach((ann, index) => {
-                                // CRITICAL: Only draw if this annotation was created for THIS specific chart
-                                if (ann.chartName !== chartName) {
-                                    return; // Skip annotations that don't belong to this chart
-                                }
+                            annotations.forEach((ann) => {
+                                if (ann.chartName !== chartName) return;
 
                                 const xPx = u.valToPos(ann.x, "x", true);
-
-                                // Get the current lane boundaries
                                 const storedLaneIndex = Math.floor(ann.y);
                                 const fractionalY = ann.y - storedLaneIndex;
-
-                                // Map to current lane
                                 const newY = laneIndex + fractionalY;
                                 const yPx = u.valToPos(newY, "y", true);
 
@@ -356,11 +435,9 @@ function CompareChartComponents({ toggles, chartType = 'default', chartName = ''
                                     yPx: yPx,
                                     radius: 10,
                                     annotation: ann,
-                                    index: index,
                                     chartName: chartName
                                 });
 
-                                // ... rest of the drawing code remains the same
                                 ctx.fillStyle = "#362b44";
                                 ctx.beginPath();
                                 ctx.arc(xPx, yPx, 6, 0, 2 * Math.PI);
@@ -406,13 +483,14 @@ function CompareChartComponents({ toggles, chartType = 'default', chartName = ''
                         }
 
                         const yVal = u.posToVal(topPx, "y");
-                        const N = SERIES.length;
                         let lane = Math.floor(yVal);
-                        lane = Math.max(0, Math.min(N - 1, lane));
+                        lane = Math.max(0, Math.min(activeSeries.length - 1, lane));
 
                         const m = laneMeta[lane];
-                        const s = activeSeries[lane];
-                        const year = X[idx];
+                        const s = seriesWithData[lane];
+                        const timestamp = timestamps[idx];
+                        const date = new Date(timestamp * 1000);
+                        const dateStr = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
                         const yOrig = s.data[idx];
 
                         const mouseXCanvas = u.bbox.left + leftPx;
@@ -447,7 +525,7 @@ function CompareChartComponents({ toggles, chartType = 'default', chartName = ''
                         } else {
                             tooltip.innerHTML = `
                                 <div style="font-weight:600;color:${m.color}">${s.key}</div>
-                                <div><b>${yOrig?.toFixed(3) ?? "—"}</b> | ${year}</div>
+                                <div><b>${yOrig?.toFixed(3) ?? "—"}</b> | ${dateStr}</div>
                             `;
 
                             const xPix = u.bbox.left + leftPx + 10;
@@ -472,10 +550,7 @@ function CompareChartComponents({ toggles, chartType = 'default', chartName = ''
 
         const resizeObserver = new ResizeObserver(() => {
             const width = chartRef.current.clientWidth;
-            chart.setSize({
-                width,
-                height: activeSeries.length * 200
-            });
+            chart.setSize({ width, height: activeSeries.length * 200 });
         });
         resizeObserver.observe(chartRef.current);
 
@@ -543,7 +618,6 @@ function CompareChartComponents({ toggles, chartType = 'default', chartName = ''
             const xVal = chart.posToVal(offsetX, "x");
             const yVal = chart.posToVal(offsetY, "y");
 
-            // Determine which lane/chart was clicked
             const laneIndex = Math.floor(yVal);
             const clampedLaneIndex = Math.max(0, Math.min(activeSeries.length - 1, laneIndex));
             const clickedSeries = activeSeries[clampedLaneIndex];
@@ -575,7 +649,7 @@ function CompareChartComponents({ toggles, chartType = 'default', chartName = ''
             tooltip.remove();
             annTooltip.remove();
         };
-    }, [toggles, allAnnotations, chartType, chartName]);
+    }, [toggles, allAnnotations, chartType, liveData, activeSeries]);
 
     const handleSaveNote = () => {
         if (currentNote.trim() && pendingAnnotation && pendingAnnotation.chartName) {
@@ -591,12 +665,10 @@ function CompareChartComponents({ toggles, chartType = 'default', chartName = ''
                 note: currentNote,
             };
 
-            // Add to database with the correct chart name
             addAnnotation(pendingAnnotation.chartName, selectedWearerId, chartType, newAnnotation);
 
-            // Reload all annotations
             const updatedAnnotationsMap = {};
-            SERIES.forEach(series => {
+            SERIES_CONFIG.forEach(series => {
                 const chartName = series.id.replace('toggle', '');
                 updatedAnnotationsMap[chartName] = getAnnotations(chartName, selectedWearerId, chartType);
             });
@@ -623,12 +695,10 @@ function CompareChartComponents({ toggles, chartType = 'default', chartName = ''
         const selectedWearerId = localStorage.getItem('selectedWearerId');
         if (!selectedWearerId || !selectedAnnotation.chartName) return;
 
-        // Delete from database using the annotation's chart name
         deleteAnnotation(selectedAnnotation.chartName, selectedWearerId, selectedAnnotation);
 
-        // Reload all annotations
         const updatedAnnotationsMap = {};
-        SERIES.forEach(series => {
+        SERIES_CONFIG.forEach(series => {
             const chartName = series.id.replace('toggle', '');
             updatedAnnotationsMap[chartName] = getAnnotations(chartName, selectedWearerId, chartType);
         });
