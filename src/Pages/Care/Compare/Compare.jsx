@@ -6,22 +6,21 @@ import wearersData from '../../../Jsons/DbJson/Wearers.json'
 import CompareChartComponents from './Components/CompareChartComponents'
 const cardSets = [
   {
-    title: 'mobility',
-    items: [
-      { id: 'toggleCadence', text: '✦ Cadence', color: '#FF00C8' },
-      // { id: 'toggleStepTiming', text: '✦ Step timing variation', color: '#FF6600' },
-      { id: 'toggleSymmetryProxy', text: '✦ Symmetry proxy', color: '#00A661' },
-      { id: 'toggleTurns', text: '✦ Turns', color: '#0B3EF5' },
-      { id: 'toggleStride', text: '✦ Stride time', color: '#EF4444' },
-    ],
-  },
-  {
     title: 'Calmness',
     items: [
       { id: 'toggleHeart', text: '✦ Pulse Rate Variability', color: '#000000' },
       { id: 'toggleSkin', text: '✦ Skin Conductance', color: '#44B649' },
       { id: 'togglePulse', text: '✦ Pulse Rate ', color: '#673A8F' },
       { id: 'toggleSkinTemperature', text: '✦ Skin temperature', color: '#F59E0B' },
+    ],
+  },
+  {
+    title: 'mobility',
+    items: [
+      { id: 'toggleCadence', text: '✦ Cadence', color: '#FF00C8' },
+      { id: 'toggleSymmetryProxy', text: '✦ Symmetry proxy', color: '#00A661' },
+      { id: 'toggleTurns', text: '✦ Turns', color: '#0B3EF5' },
+      { id: 'toggleStride', text: '✦ Stride time', color: '#EF4444' },
     ],
   },
   {
