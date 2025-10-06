@@ -178,7 +178,7 @@ function filterDataByDateRange(data, startDate, periodUnit) {
     });
 }
 
-function CompareChartComponents({ toggles, chartType = 'default', periodUnit = 'day', startDate = '' }) {
+function CompareChartComponents({ toggles, chartType = 'default', periodUnit = 'day', startDate = '', chartName = '' }) {
     const chartRef = useRef(null);
     const plotInstance = useRef(null);
     const [liveData, setLiveData] = useState({});
@@ -333,9 +333,15 @@ function CompareChartComponents({ toggles, chartType = 'default', periodUnit = '
                     grid: { show: true },
                     values: (u, vals) => vals.map(v => {
                         const date = new Date(v * 1000);
-                        const hours = date.getHours().toString().padStart(2, '0');
-                        const minutes = date.getMinutes().toString().padStart(2, '0');
-                        return `${hours}:${minutes}`;
+                        if (periodUnit === 'day') {
+                            const hours = date.getHours().toString().padStart(2, '0');
+                            const minutes = date.getMinutes().toString().padStart(2, '0');
+                            return `${hours}:${minutes}`;
+                        } else {
+                            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                            const day = date.getDate().toString().padStart(2, '0');
+                            return `${month}/${day}`;
+                        }
                     }),
                 },
                 {
@@ -649,7 +655,7 @@ function CompareChartComponents({ toggles, chartType = 'default', periodUnit = '
             tooltip.remove();
             annTooltip.remove();
         };
-    }, [toggles, allAnnotations, chartType, liveData, activeSeries]);
+    }, [toggles, allAnnotations, chartType, liveData, activeSeries, periodUnit]);
 
     const handleSaveNote = () => {
         if (currentNote.trim() && pendingAnnotation && pendingAnnotation.chartName) {

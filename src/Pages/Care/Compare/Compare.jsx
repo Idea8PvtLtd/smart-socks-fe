@@ -139,7 +139,6 @@ function Compare() {
                 <option value="day">Day</option>
                 <option value="week">Week</option>
                 <option value="month">Month</option>
-                <option value="year">Year</option>
               </select>
             </div>
             <div className='togglecards'>
@@ -218,6 +217,7 @@ function Compare() {
                           toggles={toggles}
                           chartType="previous_data"
                           chartName={activeChartName}
+                          periodUnit={periodUnit}
                         />
                       </div>
                     </div>
@@ -228,8 +228,8 @@ function Compare() {
                       <input
                         className='compareCardSelect'
                         type={getInputType(periodUnit)}
-                        value={liveStart}
-                        onChange={e => setLiveStart(e.target.value)}
+                        value={prevStart}
+                        onChange={e => setPrevStart(e.target.value)}
                         min={periodUnit === 'year' ? '2000' : undefined}
                         max={periodUnit === 'year' ? '2100' : undefined}
                       />
@@ -262,6 +262,7 @@ function Compare() {
                           toggles={toggles}
                           chartType="live_data"
                           chartName={activeChartName}
+                          periodUnit={periodUnit}
                         />
                       </div>
 
