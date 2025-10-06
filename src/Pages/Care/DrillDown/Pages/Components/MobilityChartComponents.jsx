@@ -293,10 +293,10 @@ function MobilityChartComponents() {
 
               // reference lines per lane (in original-value space)
               const referenceLines = {
-                Cadence: { start: 0.1, end: 0.6 },
-                "Symmetry Proxy": { start: 0.3, end: 0.8 },
-                Turns: { start: 0.3, end: 0.7 },
-                "Stride variability": { start: 0.3, end: 0.8 },
+                Cadence: { start: 42, end: 53 },
+                "Symmetry Proxy": { start: 0.895, end: 0.901},
+                Turns: { start: 1.855, end: 1.973 },
+                "Stride variability": { start: 0.432, end: 0.581 },
               };
 
               const refs = referenceLines[m.key];
