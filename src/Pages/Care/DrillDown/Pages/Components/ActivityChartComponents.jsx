@@ -1,16 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import uPlot from "uplot";
 import "uplot/dist/uPlot.min.css";
-import { walkingChartPush, stepsChartPush, boutsChartPush, longestBoutChartPush } from '../../../../../utils/ActivitySubChartsPush';
+import {
+    walkingChartPush,
+    stepsChartPush,
+    boutsChartPush,
+    longestBoutChartPush,
+} from "../../../../../utils/ActivitySubChartsPush";
 
 const STORAGE_KEY = "activity_chart_annotations";
-// ---------- Helpers ----------
-function padRange(arr, pct = 0.12) {
-    const lo = Math.min(...arr), hi = Math.max(...arr);
-    const pad = (hi - lo || Math.abs(lo) || 1) * pct;
-    return [lo - pad, hi + pad];
-}
 
+// ---------- Helpers ----------
+function onlyNums(arr) {
+    return (arr || []).filter((v) => typeof v === "number" && isFinite(v));
+}
+function padRange(arr, pct = 0.12) {
+    const nums = onlyNums(arr);
+    const lo0 = nums.length ? Math.min(...nums) : 0;
+    const hi0 = nums.length ? Math.max(...nums) : 1;
+    const span = Math.max(hi0 - lo0, 1e-9);
+    const pad = Math.max(span * pct, 1e-6);
+    return [lo0 - pad, hi0 + pad];
+}
 function makeLanesTransformed(X, seriesDefs) {
     const N = seriesDefs.length;
     const yGlobalMin = 0;
@@ -22,38 +33,70 @@ function makeLanesTransformed(X, seriesDefs) {
         const laneGap = 0.1;
         const laneBottom = i + laneGap;
         const laneTop = i + 1 - laneGap;
-
-        const scale = (val) => laneBottom + ((val - lo) / (hi - lo)) * (laneTop - laneBottom);
+        const denom = (hi - lo) || 1e-9;
 
         laneMeta.push({ key: s.key, color: s.color, lo, hi, laneBottom, laneTop });
-        return s.data.map(scale);
+
+        return s.data.map((val) => {
+            if (val == null || !isFinite(val)) return null;
+            return laneBottom + ((val - lo) / denom) * (laneTop - laneBottom);
+        });
     });
 
-    return {
-        data: [X, ...transformedSeries],
-        laneMeta,
-        yRange: [yGlobalMin, yGlobalMax],
-    };
+    return { data: [X, ...transformedSeries], laneMeta, yRange: [yGlobalMin, yGlobalMax] };
+}
+function ordinalDay(day) {
+    if (day >= 11 && day <= 13) return `${day}th`;
+    const last = day % 10;
+    if (last === 1) return `${day}st`;
+    if (last === 2) return `${day}nd`;
+    if (last === 3) return `${day}rd`;
+    return `${day}th`;
 }
 
 function ActivityChartComponents() {
     const chartRef = useRef(null);
     const plotInstance = useRef(null);
-    const [annotations, setAnnotations] = useState([]);
-    const [liveData, setLiveData] = useState({ X: [], Steps: [], Bouts: [], Longest: [], Walking: [] });
+
+    // latest data for hooks (avoid stale closures)
+    const rawSeriesRef = useRef([]);
+    const xRef = useRef([]);
+    const laneMetaRef = useRef([]);
+
+    // annotations (instant draw via ref)
+    const initialNotes = (() => {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            return saved ? JSON.parse(saved) : [];
+        } catch {
+            return [];
+        }
+    })();
+    const [annotations, setAnnotations] = useState(initialNotes);
+    const annotationsRef = useRef(initialNotes);
+    useEffect(() => {
+        annotationsRef.current = annotations;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(annotations));
+    }, [annotations]);
+
+    const [liveData, setLiveData] = useState({
+        X: [],
+        Steps: [],
+        Bouts: [],
+        Longest: [],
+        Walking: [],
+    });
+
     const [showModal, setShowModal] = useState(false);
     const [showViewModal, setShowViewModal] = useState(false);
     const [currentNote, setCurrentNote] = useState("");
     const [selectedAnnotation, setSelectedAnnotation] = useState(null);
     const [pendingAnnotation, setPendingAnnotation] = useState(null);
-    const annotationHitboxes = useRef([]);
-    const annotationTooltip = useRef(null);
-    // Save annotations to localStorage
-    useEffect(() => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(annotations));
-    }, [annotations]);
 
-    // Fetch live data from CSV files using ActivitySubChartPush
+    const annotationHitboxes = useRef([]); // vertical strip hitboxes
+    const annotationTooltip = useRef(null);
+
+    // Fetch live data (wire listeners)
     useEffect(() => {
         const updateChartData = () => {
             const stepsData = stepsChartPush.getCurrentData();
@@ -61,48 +104,37 @@ function ActivityChartComponents() {
             const longestData = longestBoutChartPush.getCurrentData();
             const walkingData = walkingChartPush.getCurrentData();
 
-            // Find common timestamps (intersection)
             const allTimestamps = new Set();
-            [stepsData, boutsData, longestData, walkingData].forEach(dataset => {
-                dataset.forEach(point => allTimestamps.add(point.time));
-            });
-
+            [stepsData, boutsData, longestData, walkingData].forEach((ds) =>
+                ds.forEach((p) => allTimestamps.add(p.time))
+            );
             const timestamps = Array.from(allTimestamps).sort((a, b) => a - b);
 
-            // Create lookup maps
-            const stepsMap = new Map(stepsData.map(d => [d.time, d.value]));
-            const boutsMap = new Map(boutsData.map(d => [d.time, d.value]));
-            const longestMap = new Map(longestData.map(d => [d.time, d.value]));
-            const walkingMap = new Map(walkingData.map(d => [d.time, d.value]));
-
-            // Build aligned arrays
-            const steps = timestamps.map(t => stepsMap.get(t) ?? null);
-            const bouts = timestamps.map(t => boutsMap.get(t) ?? null);
-            const longest = timestamps.map(t => longestMap.get(t) ?? null);
-            const walking = timestamps.map(t => walkingMap.get(t) ?? null);
+            const toMap = (arr) => new Map(arr.map((d) => [d.time, d.value]));
+            const stepsMap = toMap(stepsData);
+            const boutsMap = toMap(boutsData);
+            const longestMap = toMap(longestData);
+            const walkingMap = toMap(walkingData);
 
             setLiveData({
                 X: timestamps,
-                Steps: steps,
-                Bouts: bouts,
-                Longest: longest,
-                Walking: walking
+                Steps: timestamps.map((t) => stepsMap.get(t) ?? null),
+                Bouts: timestamps.map((t) => boutsMap.get(t) ?? null),
+                Longest: timestamps.map((t) => longestMap.get(t) ?? null),
+                Walking: timestamps.map((t) => walkingMap.get(t) ?? null),
             });
         };
 
-        // Add listeners to all data sources
         stepsChartPush.addListener(updateChartData);
         boutsChartPush.addListener(updateChartData);
         longestBoutChartPush.addListener(updateChartData);
         walkingChartPush.addListener(updateChartData);
 
-        // Start live updates
         stepsChartPush.startLiveUpdates();
         boutsChartPush.startLiveUpdates();
         longestBoutChartPush.startLiveUpdates();
         walkingChartPush.startLiveUpdates();
 
-        // Initial update
         updateChartData();
 
         return () => {
@@ -122,15 +154,19 @@ function ActivityChartComponents() {
     useEffect(() => {
         if (!chartRef.current) return;
 
-        // Initial sample data for chart creation (prevents NaN)
+        // seed to avoid NaNs on first paint
         const SERIES = [
             { key: "Steps", color: "#0077B6", data: [0, 1, 0] },
             { key: "Walking bouts", color: "#6E9600", data: [0, 1, 0] },
             { key: "Longest Bout", color: "#F50B5D", data: [0, 1, 0] },
             { key: "Walking", color: "#FF0000", data: [0, 1, 0] },
         ];
+        rawSeriesRef.current = SERIES;
+        xRef.current = [0, 1, 2];
+        annotationsRef.current = initialNotes;
 
-        const { data, laneMeta, yRange } = makeLanesTransformed([0, 1, 2], SERIES);
+        const { data, laneMeta, yRange } = makeLanesTransformed(xRef.current, SERIES);
+        laneMetaRef.current = laneMeta;
         const N = SERIES.length;
 
         const tooltip = document.createElement("div");
@@ -143,7 +179,7 @@ function ActivityChartComponents() {
             borderRadius: "8px",
             fontSize: "12px",
             display: "none",
-            zIndex: "10"
+            zIndex: "10",
         });
         chartRef.current.appendChild(tooltip);
 
@@ -161,7 +197,7 @@ function ActivityChartComponents() {
             maxWidth: "300px",
             wordWrap: "break-word",
             boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-            lineHeight: "1.4"
+            lineHeight: "1.4",
         });
         chartRef.current.appendChild(annTooltip);
         annotationTooltip.current = annTooltip;
@@ -169,26 +205,19 @@ function ActivityChartComponents() {
         const opts = {
             width: chartRef.current.clientWidth,
             height: 180 * N,
-            padding: [null, 16, null, 60],
+            padding: [null, 16, null, 64],
             scales: { x: { time: false }, y: { range: yRange } },
             axes: [
                 {
                     scale: "x",
                     grid: { show: true },
-                    values: (u, vals) => vals.map(v => {
-                        const date = new Date(v * 1000);
-                        const day = date.getDate();
-                        const suffix = day % 10 === 1 && day !== 11 ? 'st' :
-                            day % 10 === 2 && day !== 12 ? 'nd' :
-                                day % 10 === 3 && day !== 13 ? 'rd' : 'th';
-                        return `${day}${suffix}`;
-                    }),
+                    values: (_u, vals) =>
+                        vals.map((v) => {
+                            const d = new Date(v * 1000);
+                            return ordinalDay(d.getDate());
+                        }),
                 },
-                {
-                    scale: "y",
-                    show: false,
-                    grid: { show: false },
-                },
+                { scale: "y", show: false, grid: { show: false } },
             ],
             series: [
                 {},
@@ -199,10 +228,13 @@ function ActivityChartComponents() {
                     points: { show: true },
                 })),
             ],
-            cursor: { focus: { prox: 24 } },
+            // Show BOTH crosshair lines
+            cursor: { focus: { prox: 24 }, x: true, y: true },
             hooks: {
                 draw: [
                     (u) => {
+                        const lm = laneMetaRef.current || [];
+                        const anns = annotationsRef.current || [];
                         const { ctx } = u;
                         const padL = u.bbox.left;
                         const padR = u.bbox.left + u.bbox.width;
@@ -210,6 +242,7 @@ function ActivityChartComponents() {
                         ctx.save();
                         ctx.textBaseline = "middle";
 
+                        // left spine
                         ctx.strokeStyle = "rgba(0,0,0,0.25)";
                         ctx.beginPath();
                         ctx.moveTo(padL, u.bbox.top);
@@ -218,21 +251,24 @@ function ActivityChartComponents() {
 
                         const tickCount = 5;
 
-                        laneMeta.forEach((m) => {
+                        lm.forEach((m, i) => {
                             const yTopPx = u.valToPos(m.laneTop, "y", true);
                             const yBotPx = u.valToPos(m.laneBottom, "y", true);
 
+                            // top lane separator
                             ctx.strokeStyle = "rgba(0,0,0,0.10)";
                             ctx.beginPath();
                             ctx.moveTo(padL, yTopPx);
                             ctx.lineTo(padR, yTopPx);
                             ctx.stroke();
 
+                            // lane label
                             ctx.fillStyle = m.color;
                             ctx.font = "600 14px system-ui, -apple-system, Segoe UI, Roboto, Arial";
                             ctx.textAlign = "right";
                             ctx.fillText(m.key, padR - 6, yTopPx + 14);
 
+                            // numeric ticks in original-value space
                             ctx.fillStyle = "#444";
                             ctx.font = "11px system-ui, -apple-system, Segoe UI, Roboto, Arial";
                             ctx.textAlign = "right";
@@ -243,7 +279,7 @@ function ActivityChartComponents() {
                                 const yValLane = m.laneBottom + frac * (m.laneTop - m.laneBottom);
                                 const yPx = u.valToPos(yValLane, "y", true);
 
-                                ctx.fillText(val.toFixed(3), padL - 6, yPx);
+                                ctx.fillText(val.toFixed(3), padL - 8, yPx);
 
                                 ctx.strokeStyle = "rgba(0,0,0,0.06)";
                                 ctx.beginPath();
@@ -252,49 +288,39 @@ function ActivityChartComponents() {
                                 ctx.stroke();
                             }
 
-                            // Add reference lines for each series
+                            // reference lines per lane (tweak to real ranges)
                             const referenceLines = {
-                                "Steps": { start: 0.1, end: 0.6 },
-                                "Walking bouts": { start: 0.1, end: 0.6 },
-                                "Longest Bout": { start: 0.1, end: 0.6 },
-                                "Walking": { start: 0.3, end: 0.9 }
+                                Steps: { start: 0.512, end: 2.496 },
+                                "Walking bouts": { start: 0.768, end: 3.744 },
+                                "Longest Bout": { start: 103.360, end: 172.800 },
+                                Walking: { start: 0.915, end: 1.282 },
                             };
-
-                            if (referenceLines[m.key]) {
-                                const refs = referenceLines[m.key];
-
-                                // Draw start reference line
-                                const startVal = refs.start;
-                                const startYLane = m.laneBottom + ((startVal - m.lo) / (m.hi - m.lo)) * (m.laneTop - m.laneBottom);
-                                const startYPx = u.valToPos(startYLane, "y", true);
+                            const refs = referenceLines[m.key];
+                            if (refs) {
+                                const toLaneY = (orig) =>
+                                    m.laneBottom +
+                                    ((orig - m.lo) / Math.max(m.hi - m.lo, 1e-9)) * (m.laneTop - m.laneBottom);
 
                                 ctx.strokeStyle = m.color;
-                                ctx.setLineDash([5, 5]); // Dashed line
+                                ctx.setLineDash([5, 5]);
                                 ctx.lineWidth = 2;
+                                // start
                                 ctx.beginPath();
-                                ctx.moveTo(padL, startYPx);
-                                ctx.lineTo(padR, startYPx);
+                                ctx.moveTo(padL, u.valToPos(toLaneY(refs.start), "y", true));
+                                ctx.lineTo(padR, u.valToPos(toLaneY(refs.start), "y", true));
+                                ctx.stroke();
+                                // end
+                                ctx.beginPath();
+                                ctx.moveTo(padL, u.valToPos(toLaneY(refs.end), "y", true));
+                                ctx.lineTo(padR, u.valToPos(toLaneY(refs.end), "y", true));
                                 ctx.stroke();
 
-                                // Draw end reference line
-                                const endVal = refs.end;
-                                const endYLane = m.laneBottom + ((endVal - m.lo) / (m.hi - m.lo)) * (m.laneTop - m.laneBottom);
-                                const endYPx = u.valToPos(endYLane, "y", true);
-
-                                ctx.strokeStyle = m.color;
-                                ctx.setLineDash([5, 5]); // Different dash pattern
-                                ctx.lineWidth = 2;
-                                ctx.beginPath();
-                                ctx.moveTo(padL, endYPx);
-                                ctx.lineTo(padR, endYPx);
-                                ctx.stroke();
-
-                                // Reset line style
                                 ctx.setLineDash([]);
                                 ctx.lineWidth = 1;
                             }
 
-                            if (m === laneMeta[laneMeta.length - 1]) {
+                            // bottom separator on last lane
+                            if (i === lm.length - 1) {
                                 ctx.strokeStyle = "rgba(0,0,0,0.10)";
                                 ctx.beginPath();
                                 ctx.moveTo(padL, yBotPx);
@@ -303,52 +329,61 @@ function ActivityChartComponents() {
                             }
                         });
 
+                        // ---------- FULL-HEIGHT VERTICAL ANNOTATION LINES ----------
                         annotationHitboxes.current = [];
+                        const topPxAll = u.bbox.top;
+                        const botPxAll = u.bbox.top + u.bbox.height;
 
-                        annotations.forEach((ann) => {
+                        anns.forEach((ann) => {
                             const xPx = u.valToPos(ann.x, "x", true);
-                            const yPx = u.valToPos(ann.y, "y", true);
 
+                            // hitbox as a vertical strip
+                            const halfW = 6;
                             annotationHitboxes.current.push({
-                                xPx: xPx,
-                                yPx: yPx,
-                                radius: 10,
-                                annotation: ann
+                                xPx,
+                                x1: xPx - halfW,
+                                x2: xPx + halfW,
+                                y1: topPxAll,
+                                y2: botPxAll,
+                                annotation: ann,
                             });
 
-                            ctx.fillStyle = "#362b44";
+                            // vertical line
+                            ctx.strokeStyle = "#362b44";
+                            ctx.lineWidth = 2;
                             ctx.beginPath();
-                            ctx.arc(xPx, yPx, 6, 0, 2 * Math.PI);
-                            ctx.fill();
+                            ctx.moveTo(xPx, topPxAll);
+                            ctx.lineTo(xPx, botPxAll);
+                            ctx.stroke();
 
-                            const words = ann.note.trim().split(/\s+/);
-                            const displayText = words.slice(0, 2).join(' ');
-
-                            ctx.font = "600 14px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-                            ctx.textAlign = "center";
-                            ctx.textBaseline = "middle";
-
+                            // label (first 2 words) at top
+                            const words = String(ann.note || "").trim().split(/\s+/);
+                            const displayText = words.slice(0, 2).join(" ");
+                            ctx.font = "600 13px system-ui, -apple-system, Segoe UI, Roboto, Arial";
                             const textWidth = ctx.measureText(displayText).width;
-                            const boxPadding = 6;
-                            const boxWidth = textWidth + boxPadding * 2;
-                            const boxHeight = 20;
-                            const labelOffsetY = -18;
+                            const padX = 6,
+                                h = 22,
+                                w = textWidth + padX * 2;
+
+                            const labelX = Math.min(
+                                Math.max(xPx - w / 2, u.bbox.left + 4),
+                                u.bbox.left + u.bbox.width - w - 4
+                            );
+                            const labelY = topPxAll + 4;
 
                             ctx.fillStyle = "#362b44";
-                            ctx.beginPath();
-                            ctx.roundRect(xPx - boxWidth / 2, yPx + labelOffsetY - boxHeight / 2, boxWidth, boxHeight, 4);
-                            ctx.fill();
-
-                            ctx.shadowColor = "rgba(0, 0, 0, 0.2)";
-                            ctx.shadowBlur = 4;
-                            ctx.shadowOffsetY = 2;
+                            if (typeof ctx.roundRect === "function") {
+                                ctx.beginPath();
+                                ctx.roundRect(labelX, labelY, w, h, 4);
+                                ctx.fill();
+                            } else {
+                                ctx.fillRect(labelX, labelY, w, h);
+                            }
 
                             ctx.fillStyle = "#fff";
-                            ctx.fillText(displayText, xPx, yPx + labelOffsetY);
-
-                            ctx.shadowColor = "transparent";
-                            ctx.shadowBlur = 0;
-                            ctx.shadowOffsetY = 0;
+                            ctx.textBaseline = "middle";
+                            ctx.textAlign = "center";
+                            ctx.fillText(displayText, labelX + w / 2, labelY + h / 2);
                         });
 
                         ctx.restore();
@@ -359,77 +394,76 @@ function ActivityChartComponents() {
                         const idx = u.cursor.idx;
                         const leftPx = u.cursor.left;
                         const topPx = u.cursor.top;
+                        const annTooltip = annotationTooltip.current;
+                        const tooltip = chartRef.current.querySelector(":scope > div");
 
                         if (idx == null || leftPx == null || topPx == null) {
-                            tooltip.style.display = "none";
-                            annTooltip.style.display = "none";
+                            if (tooltip) tooltip.style.display = "none";
+                            if (annTooltip) annTooltip.style.display = "none";
                             return;
                         }
 
                         const yVal = u.posToVal(topPx, "y");
+                        const N = rawSeriesRef.current.length;
                         let lane = Math.floor(yVal);
                         lane = Math.max(0, Math.min(N - 1, lane));
 
-                        const s = SERIES[lane];
-                        const timestamp = liveData.X[idx];
-                        const date = new Date(timestamp * 1000);
-                        const dateStr = `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`;
-                        const yOrig = s.data[idx];
+                        const s = rawSeriesRef.current[lane];
+                        const timestamp = xRef.current[idx];
+                        const dateStr = isFinite(timestamp)
+                            ? new Date(timestamp * 1000).toLocaleString()
+                            : "—";
 
+                        // hit-test vertical strip
                         const mouseXCanvas = u.bbox.left + leftPx;
                         const mouseYCanvas = u.bbox.top + topPx;
                         let hoveringAnnotation = null;
 
-                        for (const hitbox of annotationHitboxes.current) {
-                            const dx = mouseXCanvas - hitbox.xPx;
-                            const dy = mouseYCanvas - hitbox.yPx;
-                            const distance = Math.sqrt(dx * dx + dy * dy);
-
-                            if (distance <= hitbox.radius) {
-                                hoveringAnnotation = hitbox.annotation;
-                                chartRef.current.style.cursor = 'pointer';
+                        for (const hb of annotationHitboxes.current) {
+                            if (
+                                mouseXCanvas >= hb.x1 &&
+                                mouseXCanvas <= hb.x2 &&
+                                mouseYCanvas >= hb.y1 &&
+                                mouseYCanvas <= hb.y2
+                            ) {
+                                hoveringAnnotation = hb.annotation;
+                                chartRef.current.style.cursor = "pointer";
                                 break;
                             }
                         }
 
                         if (hoveringAnnotation) {
-                            tooltip.style.display = "none";
-                            annTooltip.innerHTML = hoveringAnnotation.note;
-
-                            const mouseXAbs = u.bbox.left + leftPx;
-                            const mouseYAbs = u.bbox.top + topPx;
-
-                            const xPix = mouseXAbs + 15;
-                            const yPix = mouseYAbs - 35;
-
+                            if (tooltip) tooltip.style.display = "none";
+                            annTooltip.innerHTML = hoveringAnnotation.note || "";
+                            const xPix = u.bbox.left + leftPx + 15;
+                            const yPix = u.bbox.top + topPx - 35;
                             const maxX = u.bbox.left + u.bbox.width - 320;
                             const maxY = u.bbox.top + u.bbox.height - 60;
-
                             annTooltip.style.left = Math.max(10, Math.min(xPix, maxX)) + "px";
                             annTooltip.style.top = Math.max(10, Math.min(yPix, maxY)) + "px";
                             annTooltip.style.display = "block";
+                            return;
                         } else {
-                            chartRef.current.style.cursor = 'crosshair';
                             annTooltip.style.display = "none";
-
-                            tooltip.innerHTML = `
-                              <div style="font-weight:600; color:white; margin-bottom:5px;">${s.key}</div>
-                                <div><b>${yOrig?.toFixed(3) ?? "—"}</b> | ${dateStr}</div>
-                            `;
-
-                            const mouseXAbs = u.bbox.left + leftPx;
-                            const mouseYAbs = u.bbox.top + topPx;
-
-                            const xPix = mouseXAbs + 10;
-                            const yPix = mouseYAbs - 28;
-
-                            const maxX = u.bbox.left + u.bbox.width - 8;
-                            const maxY = u.bbox.top + u.bbox.height - 8;
-
-                            tooltip.style.left = Math.min(xPix, maxX) + "px";
-                            tooltip.style.top = Math.min(yPix, maxY) + "px";
-                            tooltip.style.display = "block";
+                            chartRef.current.style.cursor = "crosshair";
                         }
+
+                        // value tooltip (raw value of lane)
+                        const val = s && s.data ? s.data[idx] : null;
+                        const valStr = val == null || !isFinite(val) ? "—" : Number(val).toFixed(3);
+
+                        tooltip.innerHTML = `
+              <div style="font-weight:600; color:white; margin-bottom:5px;">${s?.key ?? ""}</div>
+              <div><b>${valStr}</b> | ${dateStr}</div>
+            `;
+
+                        const xPix = u.bbox.left + leftPx + 10;
+                        const yPix = u.bbox.top + topPx - 28;
+                        const maxX = u.bbox.left + u.bbox.width - 8;
+                        const maxY = u.bbox.top + u.bbox.height - 8;
+                        tooltip.style.left = Math.min(xPix, maxX) + "px";
+                        tooltip.style.top = Math.min(yPix, maxY) + "px";
+                        tooltip.style.display = "block";
                     },
                 ],
             },
@@ -457,7 +491,9 @@ function ActivityChartComponents() {
             setXAll(nx1, nx2);
         };
 
-        let startX = 0, sMin = 0, sMax = 0;
+        let startX = 0,
+            sMin = 0,
+            sMax = 0;
         let isDragging = false;
 
         const onDown = (e) => {
@@ -493,25 +529,22 @@ function ActivityChartComponents() {
             const mouseXAbs = e.clientX;
             const mouseYAbs = e.clientY;
 
-            for (const hitbox of annotationHitboxes.current) {
-                const dx = mouseXAbs - hitbox.xPx;
-                const dy = mouseYAbs - hitbox.yPx;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance <= hitbox.radius) {
-                    setSelectedAnnotation(hitbox.annotation);
+            // check annotation clicks first (vertical strip)
+            for (const hb of annotationHitboxes.current) {
+                if (mouseXAbs >= hb.x1 && mouseXAbs <= hb.x2 && mouseYAbs >= hb.y1 && mouseYAbs <= hb.y2) {
+                    setSelectedAnnotation(hb.annotation);
                     setShowViewModal(true);
                     return;
                 }
             }
 
+            // create pending annotation
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;
             const offsetX = mouseX - chart.bbox.left;
             const offsetY = mouseY - chart.bbox.top;
-
             const xVal = chart.posToVal(offsetX, "x");
-            const yVal = chart.posToVal(offsetY, "y");
+            const yVal = chart.posToVal(offsetY, "y"); // kept for future per-lane notes
             setPendingAnnotation({ x: xVal, y: yVal });
             setShowModal(true);
         };
@@ -538,16 +571,11 @@ function ActivityChartComponents() {
             tooltip.remove();
             annTooltip.remove();
         };
-    }, []); // Create chart only once
+    }, []); // once
 
     // Update chart data when liveData changes (preserves zoom/scroll)
     useEffect(() => {
         if (!plotInstance.current || liveData.X.length === 0) return;
-
-        // Save current zoom state before updating data
-        const currentScale = plotInstance.current.scales.x;
-        const savedMin = currentScale.min;
-        const savedMax = currentScale.max;
 
         const SERIES = [
             { key: "Steps", color: "#0077B6", data: liveData.Steps },
@@ -555,40 +583,47 @@ function ActivityChartComponents() {
             { key: "Longest Bout", color: "#F50B5D", data: liveData.Longest },
             { key: "Walking", color: "#FF0000", data: liveData.Walking },
         ];
+        rawSeriesRef.current = SERIES;
+        xRef.current = liveData.X;
 
-        const { data } = makeLanesTransformed(liveData.X, SERIES);
+        const { min, max } = plotInstance.current.scales.x;
+        const savedMin = min;
+        const savedMax = max;
+
+        const { data, laneMeta } = makeLanesTransformed(liveData.X, SERIES);
+        laneMetaRef.current = laneMeta;
+
         plotInstance.current.setData(data);
 
-        // Restore zoom state after data update
-        if (savedMin !== null && savedMax !== null) {
+        if (savedMin != null && savedMax != null) {
             plotInstance.current.setScale("x", { min: savedMin, max: savedMax });
         } else {
-            // Set initial zoom to show only 5% of data (latest 5%)
-            if (data[0] && data[0].length > 1) {
-                const dataLength = liveData.X.length;
-                const startIdx = Math.max(0, Math.floor(dataLength * 0.95)); // Start from 95% through data (last 5%)
-                const endIdx = dataLength - 1;
-                const minTime = liveData.X[startIdx];
-                const maxTime = liveData.X[endIdx];
-                plotInstance.current.setScale("x", { min: minTime, max: maxTime });
+            const L = liveData.X.length;
+            if (L > 1) {
+                const startIdx = Math.max(0, Math.floor(L * 0.95));
+                plotInstance.current.setScale("x", {
+                    min: liveData.X[startIdx],
+                    max: liveData.X[L - 1],
+                });
             }
         }
     }, [liveData]);
 
-    // Update annotations when they change (preserves zoom/scroll)
+    // Redraw on annotation change (safety)
     useEffect(() => {
-        if (plotInstance.current) {
-            // Force redraw to show updated annotations
-            plotInstance.current.redraw();
-        }
+        plotInstance.current && plotInstance.current.redraw();
     }, [annotations]);
 
+    // Save new annotation -> instant display
     const handleSaveNote = () => {
         if (currentNote.trim() && pendingAnnotation) {
-            setAnnotations([...annotations, { ...pendingAnnotation, note: currentNote }]);
+            const next = [...annotationsRef.current, { ...pendingAnnotation, note: currentNote }];
+            annotationsRef.current = next;
+            setAnnotations(next); // persist/state
             setCurrentNote("");
             setShowModal(false);
             setPendingAnnotation(null);
+            plotInstance.current && plotInstance.current.redraw(); // force paint now
         }
     };
 
@@ -604,38 +639,46 @@ function ActivityChartComponents() {
     };
 
     const handleDeleteAnnotation = () => {
-        setAnnotations(annotations.filter(ann => ann !== selectedAnnotation));
+        if (!selectedAnnotation) return;
+        const next = annotationsRef.current.filter((ann) => ann !== selectedAnnotation);
+        annotationsRef.current = next;
+        setAnnotations(next);
         setShowViewModal(false);
         setSelectedAnnotation(null);
+        plotInstance.current && plotInstance.current.redraw();
     };
 
-
     return (
-        <div style={{ width: '100%', position: 'relative' }}>
-            <div ref={chartRef} className="chart-container" style={{ width: '100%', position: 'relative', cursor: 'crosshair' }} />
+        <div style={{ width: "100%", position: "relative" }}>
+            <div
+                ref={chartRef}
+                className="chart-container"
+                style={{ width: "100%", position: "relative", cursor: "crosshair" }}
+            />
 
             {showModal && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.5)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 1000
-                }}>
-                    <div style={{
-                        backgroundColor: 'white',
-                        borderRadius: '12px',
-                        padding: '24px',
-                        width: '90%',
-                        maxWidth: '400px',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
-                    }}>
-                        <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600' }}>
+                <div
+                    style={{
+                        position: "fixed",
+                        inset: 0,
+                        backgroundColor: "rgba(0,0,0,0.5)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 1000,
+                    }}
+                >
+                    <div
+                        style={{
+                            backgroundColor: "white",
+                            borderRadius: "12px",
+                            padding: "24px",
+                            width: "90%",
+                            maxWidth: "400px",
+                            boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+                        }}
+                    >
+                        <h3 style={{ margin: "0 0 16px 0", fontSize: "18px", fontWeight: 600 }}>
                             Add Note
                         </h3>
                         <textarea
@@ -643,30 +686,30 @@ function ActivityChartComponents() {
                             onChange={(e) => setCurrentNote(e.target.value)}
                             placeholder="Enter your note here..."
                             style={{
-                                width: '100%',
-                                minHeight: '100px',
-                                padding: '12px',
-                                borderRadius: '8px',
-                                border: '1px solid #ddd',
-                                fontSize: '14px',
-                                fontFamily: 'inherit',
-                                resize: 'vertical',
-                                marginBottom: '16px',
-                                boxSizing: 'border-box'
+                                width: "100%",
+                                minHeight: "100px",
+                                padding: "12px",
+                                borderRadius: "8px",
+                                border: "1px solid #ddd",
+                                fontSize: "14px",
+                                fontFamily: "inherit",
+                                resize: "vertical",
+                                marginBottom: "16px",
+                                boxSizing: "border-box",
                             }}
                             autoFocus
                         />
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
                             <button
                                 onClick={handleCloseModal}
                                 style={{
-                                    padding: '8px 16px',
-                                    borderRadius: '6px',
-                                    border: '1px solid #ddd',
-                                    backgroundColor: 'white',
-                                    cursor: 'pointer',
-                                    fontSize: '14px',
-                                    fontWeight: '500'
+                                    padding: "8px 16px",
+                                    borderRadius: 6,
+                                    border: "1px solid #ddd",
+                                    backgroundColor: "white",
+                                    cursor: "pointer",
+                                    fontSize: 14,
+                                    fontWeight: 500,
                                 }}
                             >
                                 Cancel
@@ -674,14 +717,14 @@ function ActivityChartComponents() {
                             <button
                                 onClick={handleSaveNote}
                                 style={{
-                                    padding: '8px 16px',
-                                    borderRadius: '6px',
-                                    border: 'none',
-                                    backgroundColor: '#362b44',
-                                    color: 'white',
-                                    cursor: 'pointer',
-                                    fontSize: '14px',
-                                    fontWeight: '500'
+                                    padding: "8px 16px",
+                                    borderRadius: 6,
+                                    border: "none",
+                                    backgroundColor: "#362b44",
+                                    color: "white",
+                                    cursor: "pointer",
+                                    fontSize: 14,
+                                    fontWeight: 500,
                                 }}
                             >
                                 Save
@@ -692,53 +735,56 @@ function ActivityChartComponents() {
             )}
 
             {showViewModal && selectedAnnotation && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.5)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 1000
-                }}>
-                    <div style={{
-                        backgroundColor: 'white',
-                        borderRadius: '12px',
-                        padding: '24px',
-                        width: '90%',
-                        maxWidth: '500px',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
-                    }}>
-                        <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600' }}>
+                <div
+                    style={{
+                        position: "fixed",
+                        inset: 0,
+                        backgroundColor: "rgba(0,0,0,0.5)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 1000,
+                    }}
+                >
+                    <div
+                        style={{
+                            backgroundColor: "white",
+                            borderRadius: "12px",
+                            padding: "24px",
+                            width: "90%",
+                            maxWidth: "500px",
+                            boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+                        }}
+                    >
+                        <h3 style={{ margin: "0 0 16px 0", fontSize: "18px", fontWeight: 600 }}>
                             Annotation Details
                         </h3>
-                        <div style={{
-                            backgroundColor: '#f8f9fa',
-                            padding: '16px',
-                            borderRadius: '8px',
-                            marginBottom: '16px',
-                            fontSize: '14px',
-                            lineHeight: '1.6',
-                            whiteSpace: 'pre-wrap',
-                            wordBreak: 'break-word'
-                        }}>
+                        <div
+                            style={{
+                                backgroundColor: "#f8f9fa",
+                                padding: 16,
+                                borderRadius: 8,
+                                marginBottom: 16,
+                                fontSize: 14,
+                                lineHeight: 1.6,
+                                whiteSpace: "pre-wrap",
+                                wordBreak: "break-word",
+                            }}
+                        >
                             {selectedAnnotation.note}
                         </div>
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
                             <button
                                 onClick={handleDeleteAnnotation}
                                 style={{
-                                    padding: '8px 16px',
-                                    borderRadius: '6px',
-                                    border: '1px solid #dc3545',
-                                    backgroundColor: 'white',
-                                    color: '#dc3545',
-                                    cursor: 'pointer',
-                                    fontSize: '14px',
-                                    fontWeight: '500'
+                                    padding: "8px 16px",
+                                    borderRadius: 6,
+                                    border: "1px solid #dc3545",
+                                    backgroundColor: "white",
+                                    color: "#dc3545",
+                                    cursor: "pointer",
+                                    fontSize: 14,
+                                    fontWeight: 500,
                                 }}
                             >
                                 Delete
@@ -746,14 +792,14 @@ function ActivityChartComponents() {
                             <button
                                 onClick={handleCloseViewModal}
                                 style={{
-                                    padding: '8px 16px',
-                                    borderRadius: '6px',
-                                    border: 'none',
-                                    backgroundColor: '#362b44',
-                                    color: 'white',
-                                    cursor: 'pointer',
-                                    fontSize: '14px',
-                                    fontWeight: '500'
+                                    padding: "8px 16px",
+                                    borderRadius: 6,
+                                    border: "none",
+                                    backgroundColor: "#362b44",
+                                    color: "white",
+                                    cursor: "pointer",
+                                    fontSize: 14,
+                                    fontWeight: 500,
                                 }}
                             >
                                 Close
