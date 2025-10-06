@@ -3,6 +3,7 @@ import uPlot from "uplot";
 import "uplot/dist/uPlot.min.css";
 import { walkingChartPush, stepsChartPush, boutsChartPush, longestBoutChartPush } from '../../../../../utils/ActivitySubChartsPush';
 
+const STORAGE_KEY = "activity_chart_annotations";
 // ---------- Helpers ----------
 function padRange(arr, pct = 0.12) {
     const lo = Math.min(...arr), hi = Math.max(...arr);
@@ -47,6 +48,10 @@ function ActivityChartComponents() {
     const [pendingAnnotation, setPendingAnnotation] = useState(null);
     const annotationHitboxes = useRef([]);
     const annotationTooltip = useRef(null);
+    // Save annotations to localStorage
+    useEffect(() => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(annotations));
+    }, [annotations]);
 
     // Fetch live data from CSV files using ActivitySubChartPush
     useEffect(() => {
@@ -173,9 +178,9 @@ function ActivityChartComponents() {
                     values: (u, vals) => vals.map(v => {
                         const date = new Date(v * 1000);
                         const day = date.getDate();
-                        const suffix = day % 10 === 1 && day !== 11 ? 'st' : 
-                                     day % 10 === 2 && day !== 12 ? 'nd' : 
-                                     day % 10 === 3 && day !== 13 ? 'rd' : 'th';
+                        const suffix = day % 10 === 1 && day !== 11 ? 'st' :
+                            day % 10 === 2 && day !== 12 ? 'nd' :
+                                day % 10 === 3 && day !== 13 ? 'rd' : 'th';
                         return `${day}${suffix}`;
                     }),
                 },
@@ -257,12 +262,12 @@ function ActivityChartComponents() {
 
                             if (referenceLines[m.key]) {
                                 const refs = referenceLines[m.key];
-                                
+
                                 // Draw start reference line
                                 const startVal = refs.start;
                                 const startYLane = m.laneBottom + ((startVal - m.lo) / (m.hi - m.lo)) * (m.laneTop - m.laneBottom);
                                 const startYPx = u.valToPos(startYLane, "y", true);
-                                
+
                                 ctx.strokeStyle = m.color;
                                 ctx.setLineDash([5, 5]); // Dashed line
                                 ctx.lineWidth = 2;
@@ -270,12 +275,12 @@ function ActivityChartComponents() {
                                 ctx.moveTo(padL, startYPx);
                                 ctx.lineTo(padR, startYPx);
                                 ctx.stroke();
-                                
+
                                 // Draw end reference line
                                 const endVal = refs.end;
                                 const endYLane = m.laneBottom + ((endVal - m.lo) / (m.hi - m.lo)) * (m.laneTop - m.laneBottom);
                                 const endYPx = u.valToPos(endYLane, "y", true);
-                                
+
                                 ctx.strokeStyle = m.color;
                                 ctx.setLineDash([5, 5]); // Different dash pattern
                                 ctx.lineWidth = 2;
@@ -283,7 +288,7 @@ function ActivityChartComponents() {
                                 ctx.moveTo(padL, endYPx);
                                 ctx.lineTo(padR, endYPx);
                                 ctx.stroke();
-                                
+
                                 // Reset line style
                                 ctx.setLineDash([]);
                                 ctx.lineWidth = 1;

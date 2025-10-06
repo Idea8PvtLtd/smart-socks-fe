@@ -58,7 +58,7 @@ function Overview() {
                                     <option value="">All Areas</option>
                                     <option>Ground Floor</option>
                                     <option>First Floor</option>
-                                    <option>Dementia Wing</option>
+                                    <option>Second floor</option>
                                 </select>
                                 <div className='searchBox'>
                                     <input

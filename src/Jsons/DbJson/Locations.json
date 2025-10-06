@@ -3,13 +3,13 @@
     "location1": {
       "name": "Milbotix QA",
       "address": "No 123, Main Street, Colombo",
-      "areas": ["First Floor", "Ground Floor", "Dementia Wing"],
+      "areas": ["First Floor", "Ground Floor", "Second floor"],
       "lastLogin": "2024-10-01"
     },
     "location2": {
       "name": "Sunrise Care Home",
       "address": "45 Lake Road, Kandy",
-      "areas": ["Reception", "Dining Hall", "Second Floor"],
+      "areas": ["Reception", "Dining Hall", "Second floor"],
       "lastLogin": "2024-09-25"
     },
     "location3": {

@@ -8,29 +8,12 @@ import CalmnessChartComponent from '../Components/CalmnessChart';
 import MobilityChartComponents from './Components/MobilityChartComponents';
 
 function MobilityOverview() {
-  const initialData = [
-    { time: '2018-12-18', value: 25.46 },
-    { time: '2018-12-19', value: 23.92 },
-    { time: '2018-12-20', value: 22.68 },
-    { time: '2018-12-21', value: 22.67 },
-    { time: '2018-12-22', value: 32.51 },
-    { time: '2018-12-23', value: 31.11 },
-    { time: '2018-12-24', value: 27.02 },
-    { time: '2018-12-25', value: 27.32 },
-    { time: '2018-12-26', value: 25.17 },
-    { time: '2018-12-27', value: 28.89 },
-    { time: '2018-12-28', value: 25.46 },
-    { time: '2018-12-29', value: 23.92 },
-    { time: '2018-12-30', value: 22.68 },
-    { time: '2018-12-31', value: 22.67 },
-  ];
-
   const [showAddObsModal, setShowAddObsModal] = useState(false);
   const [observationInput, setObservationInput] = useState("");
   const handleOpenAddObsModal = () => setShowAddObsModal(true);
   const handleCloseAddObsModal = () => setShowAddObsModal(false);
   const handleObsInputChange = (e) => setObservationInput(e.target.value);
- 
+
   const handleSaveObservation = () => {
     setShowAddObsModal(false);
     setObservationInput("");
@@ -48,19 +31,13 @@ function MobilityOverview() {
                 <h2 className='titel'>Mobility overview</h2>
               </div>
               <div className='controls'>
-                <select className='compareCardSelect'>
-                  <option>Today</option>
-                  <option>Last 7 days</option>
-                  <option>Last 14 days</option>
-                  <option>Last 30 days</option>
-                </select>
-                <button className='addObservationBtn' onClick={handleOpenAddObsModal}>Add Observation</button>
-               
+                <button className='addObservationBtn' onClick={handleOpenAddObsModal}>Add Note</button>
+
               </div>
             </div>
             <div className='cardbodyDrill'>
               <div className='fullChartCont'>
-                <MobilityChartComponents/>
+                <MobilityChartComponents />
               </div>
               <div className='hed_leftAro'>
                 <h4 className='titel'>Other chart</h4>
@@ -73,7 +50,6 @@ function MobilityOverview() {
                   </div>
                   <div className='chartBx'>
                     <CalmnessChartComponent
-                      data={initialData}
                     />
                   </div>
                 </div>
@@ -84,7 +60,6 @@ function MobilityOverview() {
                   </div>
                   <div className='chartBx'>
                     <ActivityChartComponent
-                      data={initialData}
                     />
                   </div>
                 </div>

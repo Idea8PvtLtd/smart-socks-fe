@@ -10,7 +10,7 @@ function CareSetting() {
   const initialAreas = [
     "First Floor",
     "Ground Floor",
-    "Dementia Wing"
+    "Second floor"
   ];
 
   const [careHomeName, setCareHomeName] = useState(initialCareHomeName);
