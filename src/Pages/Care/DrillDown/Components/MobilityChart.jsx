@@ -47,6 +47,14 @@ const MobilityChart = props => {
                 textColor,
                 attributionLogo: false,
             },
+            localization: {
+                timeFormatter: (time) => {
+                    const date = typeof time === 'number' ? new Date(time * 1000) : new Date(time);
+                    const hh = String(date.getHours()).padStart(2, '0');
+                    const mm = String(date.getMinutes()).padStart(2, '0');
+                    return `${hh}:${mm}`;
+                }
+            },
             width: container.clientWidth || 300,
             height: 200,
             leftPriceScale: {
@@ -73,6 +81,12 @@ const MobilityChart = props => {
                 visible: true,
                 timeVisible: true,
                 secondsVisible: false,
+                tickMarkFormatter: (time) => {
+                    const date = typeof time === 'number' ? new Date(time * 1000) : new Date(time);
+                    const hh = String(date.getHours()).padStart(2, '0');
+                    const mm = String(date.getMinutes()).padStart(2, '0');
+                    return `${hh}:${mm}`;
+                },
             },
             handleScroll: {
                 mouseWheel: true,

@@ -47,6 +47,16 @@ const ActivityChart = props => {
                 textColor,
                 attributionLogo: false,
             },
+            // ensure x-axis uses 24-hour time format (HH:MM)
+            localization: {
+                timeFormatter: (time) => {
+                    // time can be a number (unix seconds) or a string (ISO date)
+                    const date = typeof time === 'number' ? new Date(time * 1000) : new Date(time);
+                    const hh = String(date.getHours()).padStart(2, '0');
+                    const mm = String(date.getMinutes()).padStart(2, '0');
+                    return `${hh}:${mm}`;
+                }
+            },
             width: container.clientWidth || 300,
             height: 200,
             leftPriceScale: {
@@ -73,6 +83,13 @@ const ActivityChart = props => {
                 visible: true,
                 timeVisible: true,
                 secondsVisible: false,
+                // ensure tick marks use HH:MM (24-hour) and match tooltip
+                tickMarkFormatter: (time, tickMarkType, locale) => {
+                    const date = typeof time === 'number' ? new Date(time * 1000) : new Date(time);
+                    const hh = String(date.getHours()).padStart(2, '0');
+                    const mm = String(date.getMinutes()).padStart(2, '0');
+                    return `${hh}:${mm}`;
+                },
             },
             handleScroll: {
                 mouseWheel: true,
