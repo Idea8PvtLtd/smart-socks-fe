@@ -53,13 +53,13 @@ const saveDatabase = (db) => {
 const getAnnotations = (chartName, userId, chartType) => {
     const db = getDatabase();
     if (!chartName || !userId) return [];
-    
+
     const chartData = db[chartName];
     if (!chartData) return [];
-    
+
     const userData = chartData[userId];
     if (!userData) return [];
-    
+
     const annotations = [];
     Object.keys(userData).forEach(key => {
         if (key.startsWith('Note')) {
@@ -69,39 +69,39 @@ const getAnnotations = (chartName, userId, chartType) => {
             }
         }
     });
-    
+
     return annotations;
 };
 
 const addAnnotation = (chartName, userId, chartType, annotation) => {
     if (!chartName || !userId) return;
-    
+
     const db = getDatabase();
-    
+
     if (!db[chartName]) db[chartName] = {};
     if (!db[chartName][userId]) db[chartName][userId] = {};
-    
+
     const existingNotes = Object.keys(db[chartName][userId]).filter(k => k.startsWith('Note'));
     const nextNumber = existingNotes.length + 1;
     const noteKey = `Note${nextNumber}`;
-    
+
     db[chartName][userId][noteKey] = {
         ...annotation,
         chartName,
         chartType,
         timestamp: new Date().toISOString()
     };
-    
+
     saveDatabase(db);
 };
 
 const deleteAnnotation = (chartName, userId, annotation) => {
     if (!chartName || !userId) return;
-    
+
     const db = getDatabase();
-    
+
     if (!db[chartName] || !db[chartName][userId]) return;
-    
+
     Object.keys(db[chartName][userId]).forEach(key => {
         if (key.startsWith('Note')) {
             const note = db[chartName][userId][key];
@@ -112,7 +112,7 @@ const deleteAnnotation = (chartName, userId, annotation) => {
             }
         }
     });
-    
+
     saveDatabase(db);
 };
 
@@ -151,11 +151,11 @@ function makeLanesTransformed(X, seriesDefs) {
 // Date filtering function
 function filterDataByDateRange(data, startDate, periodUnit) {
     if (!startDate || !data || data.length === 0) return data;
-    
+
     const start = new Date(startDate);
     let end = new Date(start);
-    
-    switch(periodUnit) {
+
+    switch (periodUnit) {
         case 'day':
             end.setDate(end.getDate() + 1);
             break;
@@ -171,7 +171,7 @@ function filterDataByDateRange(data, startDate, periodUnit) {
         default:
             end.setDate(end.getDate() + 1);
     }
-    
+
     return data.filter(point => {
         const pointDate = new Date(point.time * 1000);
         return pointDate >= start && pointDate < end;
@@ -182,7 +182,7 @@ function CompareChartComponents({ toggles, chartType = 'default', periodUnit = '
     const chartRef = useRef(null);
     const plotInstance = useRef(null);
     const [liveData, setLiveData] = useState({});
-    
+
     const [allAnnotations, setAllAnnotations] = useState(() => {
         const selectedWearerId = localStorage.getItem('selectedWearerId');
         if (!selectedWearerId) return {};
@@ -209,21 +209,21 @@ function CompareChartComponents({ toggles, chartType = 'default', periodUnit = '
     useEffect(() => {
         const updateChartData = () => {
             const newData = {};
-            
+
             SERIES_CONFIG.forEach(series => {
                 const dataSource = DATA_SOURCES[series.dataKey];
                 if (dataSource) {
                     let rawData = dataSource.getCurrentData();
-                    
+
                     // Apply date filtering
                     if (startDate && periodUnit) {
                         rawData = filterDataByDateRange(rawData, startDate, periodUnit);
                     }
-                    
+
                     newData[series.dataKey] = rawData;
                 }
             });
-            
+
             setLiveData(newData);
         };
 
@@ -270,15 +270,15 @@ function CompareChartComponents({ toggles, chartType = 'default', periodUnit = '
             const data = liveData[series.dataKey] || [];
             data.forEach(point => allTimestamps.add(point.time));
         });
-        
+
         const timestamps = Array.from(allTimestamps).sort((a, b) => a - b);
-        
+
         if (timestamps.length === 0) return;
 
         const seriesWithData = activeSeries.map(series => {
             const dataMap = new Map((liveData[series.dataKey] || []).map(d => [d.time, d.value]));
             const values = timestamps.map(t => dataMap.get(t) ?? null);
-            
+
             return {
                 ...series,
                 data: values
@@ -333,9 +333,9 @@ function CompareChartComponents({ toggles, chartType = 'default', periodUnit = '
                     grid: { show: true },
                     values: (u, vals) => vals.map(v => {
                         const date = new Date(v * 1000);
-                        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                        const day = date.getDate().toString().padStart(2, '0');
-                        return `${month}/${day}`;
+                        const hours = date.getHours().toString().padStart(2, '0');
+                        const minutes = date.getMinutes().toString().padStart(2, '0');
+                        return `${hours}:${minutes}`;
                     }),
                 },
                 {
