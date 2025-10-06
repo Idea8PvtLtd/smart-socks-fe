@@ -257,6 +257,48 @@ function CalmnessChartComponents() {
                                 ctx.stroke();
                             }
 
+                            // Add reference lines for each series
+                            const referenceLines = {
+                                "Pulserate variability": { start: 0.3, end: 0.8 },
+                                "Pulse rate": { start: 0.3, end: 0.8 },
+                                "Skin conductance": { start: 0.2, end: 0.7 },
+                                "Skin Temperature": { start: 0.2, end: 0.8 }
+                            };
+
+                            if (referenceLines[m.key]) {
+                                const refs = referenceLines[m.key];
+                                
+                                // Draw start reference line
+                                const startVal = refs.start;
+                                const startYLane = m.laneBottom + ((startVal - m.lo) / (m.hi - m.lo)) * (m.laneTop - m.laneBottom);
+                                const startYPx = u.valToPos(startYLane, "y", true);
+                                
+                                ctx.strokeStyle = m.color;
+                                ctx.setLineDash([5, 5]); // Dashed line
+                                ctx.lineWidth = 2;
+                                ctx.beginPath();
+                                ctx.moveTo(padL, startYPx);
+                                ctx.lineTo(padR, startYPx);
+                                ctx.stroke();
+                                
+                                // Draw end reference line
+                                const endVal = refs.end;
+                                const endYLane = m.laneBottom + ((endVal - m.lo) / (m.hi - m.lo)) * (m.laneTop - m.laneBottom);
+                                const endYPx = u.valToPos(endYLane, "y", true);
+                                
+                                ctx.strokeStyle = m.color;
+                                ctx.setLineDash([5, 5]); // Different dash pattern
+                                ctx.lineWidth = 2;
+                                ctx.beginPath();
+                                ctx.moveTo(padL, endYPx);
+                                ctx.lineTo(padR, endYPx);
+                                ctx.stroke();
+                                
+                                // Reset line style
+                                ctx.setLineDash([]);
+                                ctx.lineWidth = 1;
+                            }
+
                             if (m === laneMeta[laneMeta.length - 1]) {
                                 ctx.strokeStyle = "rgba(0,0,0,0.10)";
                                 ctx.beginPath();
