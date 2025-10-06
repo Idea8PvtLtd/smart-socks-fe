@@ -19,6 +19,7 @@ import {
   boutsChartPush,
   longestBoutChartPush,
 } from "../../../../utils/ActivitySubChartsPush";
+import { filterDataByDateRange } from "../../../../utils/FilterUtils";
 
 // Data source mapping
 const DATA_SOURCES = {
@@ -147,33 +148,6 @@ function makeLanesTransformed(X, seriesDefs) {
   return { data: [X, ...transformedSeries], laneMeta, yRange: [yGlobalMin, yGlobalMax] };
 }
 
-// Date range filter
-function filterDataByDateRange(data, startDate, periodUnit) {
-  if (!startDate || !data || data.length === 0) return data;
-  const start = new Date(startDate);
-  const end = new Date(start);
-  switch (periodUnit) {
-    case "day":
-      end.setDate(end.getDate() + 1);
-      break;
-    case "week":
-      end.setDate(end.getDate() + 7);
-      break;
-    case "month":
-      end.setMonth(end.getMonth() + 1);
-      break;
-    case "year":
-      end.setFullYear(end.getFullYear() + 1);
-      break;
-    default:
-      end.setDate(end.getDate() + 1);
-  }
-  return data.filter((p) => {
-    const d = new Date(p.time * 1000);
-    return d >= start && d < end;
-  });
-}
-
 function CompareChartComponents({
   toggles,
   chartType = "default",
@@ -221,7 +195,10 @@ function CompareChartComponents({
         const source = DATA_SOURCES[series.dataKey];
         if (!source) return;
         let raw = source.getCurrentData();
-        if (startDate && periodUnit) raw = filterDataByDateRange(raw, startDate, periodUnit);
+        // Apply date range filtering
+        if (startDate && periodUnit) {
+          raw = filterDataByDateRange(raw, startDate, periodUnit);
+        }
         newData[series.dataKey] = raw;
       });
       setLiveData(newData);
@@ -252,7 +229,11 @@ function CompareChartComponents({
     const allTs = new Set();
     activeSeries.forEach((s) => (liveData[s.dataKey] || []).forEach((p) => allTs.add(p.time)));
     const timestamps = Array.from(allTs).sort((a, b) => a - b);
-    if (timestamps.length === 0) return;
+    if (timestamps.length === 0) {
+      // Show "Not available" message if no data
+      chartRef.current.innerHTML = "<div style='text-align: center; color: #666;'>Not available</div>";
+      return;
+    }
 
     const seriesWithData = activeSeries.map((s) => {
       const map = new Map((liveData[s.dataKey] || []).map((d) => [d.time, d.value]));
@@ -487,9 +468,9 @@ function CompareChartComponents({
             const s = activeSeries[lane];
             const sData = (liveData[s.dataKey] || []).length
               ? (function () {
-                  const map = new Map((liveData[s.dataKey] || []).map((d) => [d.time, d.value]));
-                  return u.data[0].map((t) => (map.has(t) ? map.get(t) : null));
-                })()
+                const map = new Map((liveData[s.dataKey] || []).map((d) => [d.time, d.value]));
+                return u.data[0].map((t) => (map.has(t) ? map.get(t) : null));
+              })()
               : [];
 
             const timestamps = u.data[0] || [];

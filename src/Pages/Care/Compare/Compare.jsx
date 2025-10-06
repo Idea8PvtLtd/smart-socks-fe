@@ -132,7 +132,7 @@ function Compare() {
                 value={periodUnit}
                 onChange={e => {
                   setPeriodUnit(e.target.value);
-                  setPrevStart('');
+                  setPrevStart(''); // Reset start dates when period unit changes
                   setLiveStart('');
                 }}
               >
@@ -149,7 +149,6 @@ function Compare() {
                     <div className='toggleCardItem' key={item.id}>
                       <p className='toggleCardText' style={{ color: item.color }}>{item.text}</p>
                       <div className="toggle-switch">
-                        {/* Previous Week toggles */}
                         <input
                           className="toggle-input"
                           id={item.id + '_prev'}
@@ -158,7 +157,6 @@ function Compare() {
                           onChange={() => handleToggle('prev', item.id)}
                         />
                         <label className="toggle-label" htmlFor={item.id + '_prev'}></label>
-                        {/* Live toggles */}
                         <input
                           className="toggle-input"
                           id={item.id + '_live'}
@@ -174,102 +172,52 @@ function Compare() {
               ))}
             </div>
             {isAnyToggleActive() && (
-              <>
-
-                <div className='compareCards'>
-                  <div className='compareCard'>
-                    <div className='compareCardHeader'>
-                      <p className='compareCardHeaderTxt'>Previous {periodUnit.charAt(0).toUpperCase() + periodUnit.slice(1)} Data Analyze Chart</p>
-                      <input
-                        className='compareCardSelect'
-                        type={getInputType(periodUnit)}
-                        value={prevStart}
-                        onChange={e => setPrevStart(e.target.value)}
-                        min={periodUnit === 'year' ? '2000' : undefined}
-                        max={periodUnit === 'year' ? '2100' : undefined}
-                      />
-                    </div>
-                    <div className='compareCardBody'>
-                      <div className='summryBoxSet'>
-                        {cardCategories.map(cat => {
-                          const conf = drillCard[cat].Confidence;
-                          const colorSet = confidenceColors[conf] || confidenceColors['Low'];
-                          return (
-                            <div
-                              className='summryBox'
-                              key={cat}
-                              style={{ border: `1px solid ${colorSet.border}` }}
-                            >
-                              <p className='summryBoxTitle'>{cat} </p>
-                              <p className='summryBoxCount'>{(drillCard[cat].value)}/10</p>
-                              <p
-                                className='summryConfidence'
-                                style={{ color: colorSet.color, background: colorSet.bg }}
-                              >
-                                {conf} Risk
-                              </p>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      <div className='compareCardBody'>
-                        <CompareChartComponents
-                          toggles={toggles}
-                          chartType="previous_data"
-                          chartName={activeChartName}
-                          periodUnit={periodUnit}
-                        />
-                      </div>
-                    </div>
+              <div className='compareCards'>
+                <div className='compareCard'>
+                  <div className='compareCardHeader'>
+                    <p className='compareCardHeaderTxt'>Previous {periodUnit.charAt(0).toUpperCase() + periodUnit.slice(1)} Data Analyze Chart</p>
+                    <input
+                      className='compareCardSelect'
+                      type={getInputType(periodUnit)}
+                      value={prevStart}
+                      onChange={e => setPrevStart(e.target.value)}
+                      min={periodUnit === 'year' ? '2000' : undefined}
+                      max={periodUnit === 'year' ? '2100' : undefined}
+                    />
                   </div>
-                  <div className='compareCard'>
-                    <div className='compareCardHeader'>
-                      <p className='compareCardHeaderTxt'>Live {periodUnit.charAt(0).toUpperCase() + periodUnit.slice(1)} Data Analyze Chart</p>
-                      <input
-                        className='compareCardSelect'
-                        type={getInputType(periodUnit)}
-                        value={prevStart}
-                        onChange={e => setPrevStart(e.target.value)}
-                        min={periodUnit === 'year' ? '2000' : undefined}
-                        max={periodUnit === 'year' ? '2100' : undefined}
-                      />
-                    </div>
-                    <div className='compareCardBody'>
-                      <div className='summryBoxSet'>
-                        {cardCategories.map(cat => {
-                          const conf = drillCard[cat].Confidence;
-                          const colorSet = confidenceColors[conf] || confidenceColors['Low'];
-                          return (
-                            <div
-                              className='summryBox'
-                              key={cat}
-                              style={{ border: `1px solid ${colorSet.border}` }}
-                            >
-                              <p className='summryBoxTitle'>{cat} </p>
-                              <p className='summryBoxCount'>{(drillCard[cat].value)}/10</p>
-                              <p
-                                className='summryConfidence'
-                                style={{ color: colorSet.color, background: colorSet.bg }}
-                              >
-                                {conf} Risk
-                              </p>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      <div className='compareCardBody'>
-                        <CompareChartComponents
-                          toggles={toggles}
-                          chartType="live_data"
-                          chartName={activeChartName}
-                          periodUnit={periodUnit}
-                        />
-                      </div>
-
-                    </div>
+                  <div className='compareCardBody'>
+                    <CompareChartComponents
+                      toggles={toggles}
+                      chartType="previous_data"
+                      chartName={activeChartName}
+                      periodUnit={periodUnit}
+                      startDate={prevStart} // Pass start date for filtering
+                    />
                   </div>
                 </div>
-              </>
+                <div className='compareCard'>
+                  <div className='compareCardHeader'>
+                    <p className='compareCardHeaderTxt'>Live {periodUnit.charAt(0).toUpperCase() + periodUnit.slice(1)} Data Analyze Chart</p>
+                    <input
+                      className='compareCardSelect'
+                      type={getInputType(periodUnit)}
+                      value={liveStart}
+                      onChange={e => setLiveStart(e.target.value)}
+                      min={periodUnit === 'year' ? '2000' : undefined}
+                      max={periodUnit === 'year' ? '2100' : undefined}
+                    />
+                  </div>
+                  <div className='compareCardBody'>
+                    <CompareChartComponents
+                      toggles={toggles}
+                      chartType="live_data"
+                      chartName={activeChartName}
+                      periodUnit={periodUnit}
+                      startDate={liveStart} // Pass start date for filtering
+                    />
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>
