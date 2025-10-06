@@ -14,9 +14,9 @@ const CalmnessChart = props => {
     } = props;
 
     const [chartData, setChartData] = useState([]);
-
     const chartContainerRef = useRef();
-    const chartRef = useRef(); // Add chart ref
+    const chartRef = useRef();
+    const seriesRef = useRef();
 
     useEffect(() => {
         const handleDataUpdate = (newData) => {
@@ -37,64 +37,95 @@ const CalmnessChart = props => {
         };
     }, []);
 
-    useEffect(
-        () => {
-            const container = chartContainerRef.current;
-            if (!container) return;
+    useEffect(() => {
+        const container = chartContainerRef.current;
+        if (!container) return;
 
-            // Create chart and store in ref
-            chartRef.current = createChart(container, {
-                layout: {
-                    background: { type: ColorType.Solid, color: backgroundColor },
-                    textColor,
-                    attributionLogo: false,
+        chartRef.current = createChart(container, {
+            layout: {
+                background: { type: ColorType.Solid, color: backgroundColor },
+                textColor,
+                attributionLogo: false,
+            },
+            width: container.clientWidth || 300,
+            height: 200,
+            leftPriceScale: {
+                visible: true,
+                position: 'left',
+                borderColor: '#cccccc',
+            },
+            rightPriceScale: {
+                visible: false,
+            },
+            watermark: {
+                visible: false,
+            },
+            priceLineVisible: false,
+            lastValueVisible: false,
+            timeScale: {
+                rightOffset: 12,
+                barSpacing: 3,
+                fixLeftEdge: false,
+                fixRightEdge: false,
+                lockVisibleTimeRangeOnResize: true,
+                borderVisible: false,
+                borderColor: '#fff000',
+                visible: true,
+                timeVisible: true,
+                secondsVisible: false,
+            },
+            handleScroll: {
+                mouseWheel: true,
+                pressedMouseMove: true,
+                horzTouchDrag: true,
+                vertTouchDrag: true,
+            },
+            handleScale: {
+                mouseWheel: true,
+                pinch: true,
+                axisPressedMouseMove: {
+                    time: true,
+                    price: true,
                 },
-                width: container.clientWidth || 300,
-                height: 200,
-                leftPriceScale: {
-                    visible: true,
-                    position: 'left',
-                    borderColor: '#cccccc',
+                axisDoubleClickReset: {
+                    time: true,
+                    price: true,
                 },
-                rightPriceScale: {
-                    visible: false,
-                },
-                watermark: {
-                    visible: false,
-                },
-                priceLineVisible: false,
-                lastValueVisible: false,
-            });
-            chartRef.current.timeScale().fitContent();
+            }
+        });
 
-            const newSeries = chartRef.current.addSeries(AreaSeries, {
-                lineColor,
-                topColor: areaTopColor,
-                bottomColor: areaBottomColor,
-                priceScaleId: 'left',
-                priceLineVisible: false,
-                lastValueVisible: false,
-            });
-            newSeries.setData(chartData);
+        seriesRef.current = chartRef.current.addSeries(AreaSeries, {
+            lineColor,
+            topColor: areaTopColor,
+            bottomColor: areaBottomColor,
+            priceScaleId: 'left',
+            priceLineVisible: false,
+            lastValueVisible: false,
+        });
 
-            const handleResize = () => {
-                if (chartRef.current && container) {
-                    chartRef.current.applyOptions({ width: container.clientWidth || 300 });
-                }
-            };
+        const handleResize = () => {
+            if (chartRef.current && container) {
+                chartRef.current.applyOptions({ width: container.clientWidth || 300 });
+            }
+        };
 
-            window.addEventListener('resize', handleResize);
+        window.addEventListener('resize', handleResize);
 
-            return () => {
-                window.removeEventListener('resize', handleResize);
-                if (chartRef.current) {
-                    chartRef.current.remove();
-                    chartRef.current = null;
-                }
-            };
-        },
-        [chartData, backgroundColor, lineColor, textColor, areaTopColor, areaBottomColor]
-    );
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            if (chartRef.current) {
+                chartRef.current.remove();
+                chartRef.current = null;
+                seriesRef.current = null;
+            }
+        };
+    }, [backgroundColor, lineColor, textColor, areaTopColor, areaBottomColor]);
+
+    useEffect(() => {
+        if (seriesRef.current && chartData.length > 0) {
+            seriesRef.current.setData(chartData);
+        }
+    }, [chartData]);
 
     return (
         <div

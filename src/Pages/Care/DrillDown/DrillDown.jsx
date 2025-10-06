@@ -166,22 +166,6 @@ function DrillDown() {
                     </div>
                     <div className='chartBx'>
                       <CalmnessChartComponent
-                        data={[
-                          { time: '2018-12-18', value: 25.46 },
-                          { time: '2018-12-19', value: 23.92 },
-                          { time: '2018-12-20', value: 22.68 },
-                          { time: '2018-12-21', value: 22.67 },
-                          { time: '2018-12-22', value: 32.51 },
-                          { time: '2018-12-23', value: 31.11 },
-                          { time: '2018-12-24', value: 27.02 },
-                          { time: '2018-12-25', value: 27.32 },
-                          { time: '2018-12-26', value: 25.17 },
-                          { time: '2018-12-27', value: 28.89 },
-                          { time: '2018-12-28', value: 25.46 },
-                          { time: '2018-12-29', value: 23.92 },
-                          { time: '2018-12-30', value: 22.68 },
-                          { time: '2018-12-31', value: 22.67 },
-                        ]}
                       />
                     </div>
                   </div>
@@ -192,22 +176,7 @@ function DrillDown() {
                     </div>
                     <div className='chartBx'>
                       <MobilityChartComponent
-                        data={[
-                          { time: '2018-12-18', value: 25.46 },
-                          { time: '2018-12-19', value: 23.92 },
-                          { time: '2018-12-20', value: 22.68 },
-                          { time: '2018-12-21', value: 22.67 },
-                          { time: '2018-12-22', value: 32.51 },
-                          { time: '2018-12-23', value: 31.11 },
-                          { time: '2018-12-24', value: 27.02 },
-                          { time: '2018-12-25', value: 27.32 },
-                          { time: '2018-12-26', value: 25.17 },
-                          { time: '2018-12-27', value: 28.89 },
-                          { time: '2018-12-28', value: 25.46 },
-                          { time: '2018-12-29', value: 23.92 },
-                          { time: '2018-12-30', value: 22.68 },
-                          { time: '2018-12-31', value: 22.67 },
-                        ]}
+                        
                       />
                     </div>
                   </div>
@@ -218,39 +187,11 @@ function DrillDown() {
                     </div>
                     <div className='chartBx'>
                       <ActivityChartComponent
-                        data={[
-                          { time: '2018-12-18', value: 25.46 },
-                          { time: '2018-12-19', value: 23.92 },
-                          { time: '2018-12-20', value: 22.68 },
-                          { time: '2018-12-21', value: 22.67 },
-                          { time: '2018-12-22', value: 32.51 },
-                          { time: '2018-12-23', value: 31.11 },
-                          { time: '2018-12-24', value: 27.02 },
-                          { time: '2018-12-25', value: 27.32 },
-                          { time: '2018-12-26', value: 25.17 },
-                          { time: '2018-12-27', value: 28.89 },
-                          { time: '2018-12-28', value: 25.46 },
-                          { time: '2018-12-29', value: 23.92 },
-                          { time: '2018-12-30', value: 22.68 },
-                          { time: '2018-12-31', value: 22.67 },
-                        ]}
+                       
                       />
                     </div>
                   </div>
                 </div>
-                {/* <div className='chartCardDrill'>
-                <p className='chartCardtitle'>Wearer Statistics </p>
-                <div className='chartCardbody'>
-                  <div className='chartCardbodyData'>
-                    <p className='chartCardbodyDataTit'>How long have you been wearing it?</p>
-                    <p className='chartCardbodyDataans'>5 Hours</p>
-                  </div>
-                  <div className='chartCardbodyData'>
-                    <p className='chartCardbodyDataTit'>How long have you been Not wearing it?</p>
-                    <p className='chartCardbodyDataans'>8 Hours</p>
-                  </div>
-                </div>
-              </div> */}
               </div>
             </div>
           </div>

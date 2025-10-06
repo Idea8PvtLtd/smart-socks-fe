@@ -123,17 +123,19 @@ function CalmnessChartComponents() {
         };
     }, []);
 
+    // Create chart once
     useEffect(() => {
-        if (!chartRef.current || liveData.X.length === 0) return;
+        if (!chartRef.current) return;
 
+        // Initial sample data for chart creation (prevents NaN)
         const SERIES = [
-            { key: "Pulserate variability", color: "#000000", data: liveData.PulseRateVar },
-            { key: "Pulse rate", color: "#673A8F", data: liveData.PulseRate },
-            { key: "Skin conductance", color: "#44B649", data: liveData.SkinCond },
-            { key: "Skin Temperature", color: "#FF6600", data: liveData.SkinTemp },
+            { key: "Pulserate variability", color: "#000000", data: [0, 1, 0] },
+            { key: "Pulse rate", color: "#673A8F", data: [0, 1, 0] },
+            { key: "Skin conductance", color: "#44B649", data: [0, 1, 0] },
+            { key: "Skin Temperature", color: "#FF6600", data: [0, 1, 0] },
         ];
 
-        const { data, laneMeta, yRange } = makeLanesTransformed(liveData.X, SERIES);
+        const { data, laneMeta, yRange } = makeLanesTransformed([0, 1, 2], SERIES);
         const N = SERIES.length;
 
         const tooltip = document.createElement("div");
@@ -180,9 +182,11 @@ function CalmnessChartComponents() {
                     grid: { show: true },
                     values: (u, vals) => vals.map(v => {
                         const date = new Date(v * 1000);
-                        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                        const day = date.getDate().toString().padStart(2, '0');
-                        return `${month}/${day}`;
+                        const day = date.getDate();
+                        const suffix = day % 10 === 1 && day !== 11 ? 'st' : 
+                                     day % 10 === 2 && day !== 12 ? 'nd' : 
+                                     day % 10 === 3 && day !== 13 ? 'rd' : 'th';
+                        return `${day}${suffix}`;
                     }),
                 },
                 {
@@ -497,7 +501,50 @@ function CalmnessChartComponents() {
             tooltip.remove();
             annTooltip.remove();
         };
-    }, [annotations, liveData]);
+    }, []); // Create chart only once
+
+    // Update chart data when liveData changes (preserves zoom/scroll)
+    useEffect(() => {
+        if (!plotInstance.current || liveData.X.length === 0) return;
+
+        // Save current zoom state before updating data
+        const currentScale = plotInstance.current.scales.x;
+        const savedMin = currentScale.min;
+        const savedMax = currentScale.max;
+
+        const SERIES = [
+            { key: "Pulserate variability", color: "#000000", data: liveData.PulseRateVar },
+            { key: "Pulse rate", color: "#673A8F", data: liveData.PulseRate },
+            { key: "Skin conductance", color: "#44B649", data: liveData.SkinCond },
+            { key: "Skin Temperature", color: "#FF6600", data: liveData.SkinTemp },
+        ];
+
+        const { data } = makeLanesTransformed(liveData.X, SERIES);
+        plotInstance.current.setData(data);
+
+        // Restore zoom state after data update
+        if (savedMin !== null && savedMax !== null) {
+            plotInstance.current.setScale("x", { min: savedMin, max: savedMax });
+        } else {
+            // Set initial zoom to show only 5% of data (latest 5%)
+            if (data[0] && data[0].length > 1) {
+                const dataLength = liveData.X.length;
+                const startIdx = Math.max(0, Math.floor(dataLength * 0.95)); // Start from 95% through data (last 5%)
+                const endIdx = dataLength - 1;
+                const minTime = liveData.X[startIdx];
+                const maxTime = liveData.X[endIdx];
+                plotInstance.current.setScale("x", { min: minTime, max: maxTime });
+            }
+        }
+    }, [liveData]);
+
+    // Update annotations when they change (preserves zoom/scroll)
+    useEffect(() => {
+        if (plotInstance.current) {
+            // Force redraw to show updated annotations
+            plotInstance.current.redraw();
+        }
+    }, [annotations]);
 
     const handleSaveNote = () => {
         if (currentNote.trim() && pendingAnnotation) {
@@ -524,6 +571,7 @@ function CalmnessChartComponents() {
         setShowViewModal(false);
         setSelectedAnnotation(null);
     };
+
 
     return (
         <div style={{ width: '100%', position: 'relative' }}>
