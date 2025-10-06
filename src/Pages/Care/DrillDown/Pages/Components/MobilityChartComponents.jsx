@@ -65,15 +65,29 @@ function MobilityChartComponents() {
   const chartRef = useRef(null);
   const plotInstance = useRef(null);
 
-  // keep latest raw data & lane meta for hooks (no TS)
+  // refs for latest data used by hooks
   const rawSeriesRef = useRef([]);
   const xRef = useRef([]);
   const laneMetaRef = useRef([]);
+  const annotationsRef = useRef([]); // <— draw from here for instant updates
 
-  const [annotations, setAnnotations] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : [];
-  });
+  // load persisted notes once
+  const initialNotes = (() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  })();
+
+  const [annotations, setAnnotations] = useState(initialNotes);
+  // keep ref in sync (first render + any later changes)
+  useEffect(() => {
+    annotationsRef.current = annotations;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(annotations));
+  }, [annotations]);
+
   const [liveData, setLiveData] = useState({
     X: [],
     Cadence: [],
@@ -88,13 +102,8 @@ function MobilityChartComponents() {
   const [selectedAnnotation, setSelectedAnnotation] = useState(null);
   const [pendingAnnotation, setPendingAnnotation] = useState(null);
 
-  const annotationHitboxes = useRef([]);
+  const annotationHitboxes = useRef([]); // vertical strip hitboxes
   const annotationTooltip = useRef(null);
-
-  // persist annotations
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(annotations));
-  }, [annotations]);
 
   // live data
   useEffect(() => {
@@ -168,6 +177,7 @@ function MobilityChartComponents() {
     ];
     rawSeriesRef.current = SERIES;
     xRef.current = [0, 1, 2];
+    annotationsRef.current = initialNotes; // ensure draw sees initial
 
     const { data, laneMeta, yRange } = makeLanesTransformed(xRef.current, SERIES);
     laneMetaRef.current = laneMeta;
@@ -238,6 +248,7 @@ function MobilityChartComponents() {
         draw: [
           (u) => {
             const lm = laneMetaRef.current || [];
+            const anns = annotationsRef.current || []; // <— read from ref
             const { ctx } = u;
             const padL = u.bbox.left;
             const padR = u.bbox.left + u.bbox.width;
@@ -291,10 +302,10 @@ function MobilityChartComponents() {
                 ctx.stroke();
               }
 
-              // reference lines per lane (in original-value space)
+              // reference lines per lane (original-value space)
               const referenceLines = {
                 Cadence: { start: 42, end: 53 },
-                "Symmetry Proxy": { start: 0.895, end: 0.901},
+                "Symmetry Proxy": { start: 0.895, end: 0.901 },
                 Turns: { start: 1.855, end: 1.973 },
                 "Stride variability": { start: 0.432, end: 0.581 },
               };
@@ -334,66 +345,59 @@ function MobilityChartComponents() {
               }
             });
 
-            // rebuild hitboxes for annotations
+            // ---------- FULL-HEIGHT VERTICAL ANNOTATION LINES ----------
             annotationHitboxes.current = [];
-            (annotations || []).forEach((ann) => {
+            const topPxAll = u.bbox.top;
+            const botPxAll = u.bbox.top + u.bbox.height;
+
+            anns.forEach((ann) => {
               const xPx = u.valToPos(ann.x, "x", true);
-              const yPx = u.valToPos(ann.y, "y", true);
 
-              annotationHitboxes.current.push({ xPx, yPx, radius: 10, annotation: ann });
+              // hitbox as a vertical strip
+              const halfW = 6; // px tolerance
+              annotationHitboxes.current.push({
+                xPx,
+                x1: xPx - halfW,
+                x2: xPx + halfW,
+                y1: topPxAll,
+                y2: botPxAll,
+                annotation: ann,
+              });
 
-              // dot
-              ctx.fillStyle = "#362b44";
+              // the vertical line
+              ctx.strokeStyle = "#362b44";
+              ctx.lineWidth = 2;
               ctx.beginPath();
-              ctx.arc(xPx, yPx, 6, 0, 2 * Math.PI);
-              ctx.fill();
+              ctx.moveTo(xPx, topPxAll);
+              ctx.lineTo(xPx, botPxAll);
+              ctx.stroke();
 
-              // tiny label (first 2 words)
+              // label at the top (first 2 words)
               const words = String(ann.note || "").trim().split(/\s+/);
               const displayText = words.slice(0, 2).join(" ");
-              ctx.font = "600 14px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-              ctx.textAlign = "center";
-              ctx.textBaseline = "middle";
-
+              ctx.font = "600 13px system-ui, -apple-system, Segoe UI, Roboto, Arial";
               const textWidth = ctx.measureText(displayText).width;
-              const boxPadding = 6;
-              const boxWidth = textWidth + boxPadding * 2;
-              const boxHeight = 20;
-              const labelOffsetY = -18;
+              const padX = 6, h = 22, w = textWidth + padX * 2;
 
-              // rounded rect (supported on modern canvases)
+              const labelX = Math.min(
+                Math.max(xPx - w / 2, u.bbox.left + 4),
+                u.bbox.left + u.bbox.width - w - 4
+              );
+              const labelY = topPxAll + 4;
+
+              ctx.fillStyle = "#362b44";
               if (typeof ctx.roundRect === "function") {
-                ctx.fillStyle = "#362b44";
                 ctx.beginPath();
-                ctx.roundRect(
-                  xPx - boxWidth / 2,
-                  yPx + labelOffsetY - boxHeight / 2,
-                  boxWidth,
-                  boxHeight,
-                  4
-                );
+                ctx.roundRect(labelX, labelY, w, h, 4);
                 ctx.fill();
               } else {
-                // fallback rectangle
-                ctx.fillStyle = "#362b44";
-                ctx.fillRect(
-                  xPx - boxWidth / 2,
-                  yPx + labelOffsetY - boxHeight / 2,
-                  boxWidth,
-                  boxHeight
-                );
+                ctx.fillRect(labelX, labelY, w, h);
               }
 
-              ctx.shadowColor = "rgba(0, 0, 0, 0.2)";
-              ctx.shadowBlur = 4;
-              ctx.shadowOffsetY = 2;
-
               ctx.fillStyle = "#fff";
-              ctx.fillText(displayText, xPx, yPx + labelOffsetY);
-
-              ctx.shadowColor = "transparent";
-              ctx.shadowBlur = 0;
-              ctx.shadowOffsetY = 0;
+              ctx.textBaseline = "middle";
+              ctx.textAlign = "center";
+              ctx.fillText(displayText, labelX + w / 2, labelY + h / 2);
             });
 
             ctx.restore();
@@ -405,7 +409,6 @@ function MobilityChartComponents() {
             const leftPx = u.cursor.left;
             const topPx = u.cursor.top;
             const annTooltip = annotationTooltip.current;
-            // first created tooltip is the first absolutely positioned child
             const tooltip = chartRef.current.querySelector(":scope > div");
 
             if (idx == null || leftPx == null || topPx == null) {
@@ -424,17 +427,19 @@ function MobilityChartComponents() {
             const date = new Date((timestamp ?? 0) * 1000);
             const dateStr = isFinite(timestamp) ? date.toLocaleString() : "—";
 
-            // hit-test annotations
+            // hit-test annotations (vertical strip)
             const mouseXCanvas = u.bbox.left + leftPx;
             const mouseYCanvas = u.bbox.top + topPx;
             let hoveringAnnotation = null;
 
-            for (const hitbox of annotationHitboxes.current) {
-              const dx = mouseXCanvas - hitbox.xPx;
-              const dy = mouseYCanvas - hitbox.yPx;
-              const distance = Math.hypot(dx, dy);
-              if (distance <= hitbox.radius) {
-                hoveringAnnotation = hitbox.annotation;
+            for (const hb of annotationHitboxes.current) {
+              if (
+                mouseXCanvas >= hb.x1 &&
+                mouseXCanvas <= hb.x2 &&
+                mouseYCanvas >= hb.y1 &&
+                mouseYCanvas <= hb.y2
+              ) {
+                hoveringAnnotation = hb.annotation;
                 chartRef.current.style.cursor = "pointer";
                 break;
               }
@@ -456,7 +461,7 @@ function MobilityChartComponents() {
               chartRef.current.style.cursor = "crosshair";
             }
 
-            // raw value for this lane at idx
+            // lane value tooltip (raw value)
             const val = s && s.data ? s.data[idx] : null;
             const valStr = val == null || !isFinite(val) ? "—" : Number(val).toFixed(3);
 
@@ -537,12 +542,10 @@ function MobilityChartComponents() {
       const mouseXAbs = e.clientX;
       const mouseYAbs = e.clientY;
 
-      // check annotation clicks first
-      for (const hitbox of annotationHitboxes.current) {
-        const dx = mouseXAbs - hitbox.xPx;
-        const dy = mouseYAbs - hitbox.yPx;
-        if (Math.hypot(dx, dy) <= hitbox.radius) {
-          setSelectedAnnotation(hitbox.annotation);
+      // check annotation clicks first (vertical strip)
+      for (const hb of annotationHitboxes.current) {
+        if (mouseXAbs >= hb.x1 && mouseXAbs <= hb.x2 && mouseYAbs >= hb.y1 && mouseYAbs <= hb.y2) {
+          setSelectedAnnotation(hb.annotation);
           setShowViewModal(true);
           return;
         }
@@ -554,7 +557,7 @@ function MobilityChartComponents() {
       const offsetX = mouseX - chart.bbox.left;
       const offsetY = mouseY - chart.bbox.top;
       const xVal = chart.posToVal(offsetX, "x");
-      const yVal = chart.posToVal(offsetY, "y");
+      const yVal = chart.posToVal(offsetY, "y"); // kept for future lane-level notes
       setPendingAnnotation({ x: xVal, y: yVal });
       setShowModal(true);
     };
@@ -619,17 +622,24 @@ function MobilityChartComponents() {
     }
   }, [liveData]);
 
-  // Redraw on annotation change
+  // Redraw when annotations change (safety)
   useEffect(() => {
     plotInstance.current && plotInstance.current.redraw();
   }, [annotations]);
 
   const handleSaveNote = () => {
     if (currentNote.trim() && pendingAnnotation) {
-      setAnnotations((prev) => [...prev, { ...pendingAnnotation, note: currentNote }]);
+      // update ref immediately for instant draw
+      const next = [...annotationsRef.current, { ...pendingAnnotation, note: currentNote }];
+      annotationsRef.current = next;
+      // persist/state
+      setAnnotations(next);
+      // close & clear
       setCurrentNote("");
       setShowModal(false);
       setPendingAnnotation(null);
+      // force paint now
+      plotInstance.current && plotInstance.current.redraw();
     }
   };
 
@@ -645,9 +655,13 @@ function MobilityChartComponents() {
   };
 
   const handleDeleteAnnotation = () => {
-    setAnnotations((prev) => prev.filter((ann) => ann !== selectedAnnotation));
+    if (!selectedAnnotation) return;
+    const next = annotationsRef.current.filter((ann) => ann !== selectedAnnotation);
+    annotationsRef.current = next;
+    setAnnotations(next);
     setShowViewModal(false);
     setSelectedAnnotation(null);
+    plotInstance.current && plotInstance.current.redraw();
   };
 
   return (
