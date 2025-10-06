@@ -19,7 +19,6 @@ function AddObservationsModel({ open, onClose, value, onChange, onSave }) {
         setTimeout(() => {
             setAlertType('');
             onClose();
-            // If you still want to notify parent that a save occurred:
             if (typeof onSave === 'function') onSave();
         }, 1000);
     };
@@ -30,6 +29,21 @@ function AddObservationsModel({ open, onClose, value, onChange, onSave }) {
                 <h3 className='from_head'>Add new Notes</h3>
                 <div className='fromBack'>
                     <form className='addFrom' onSubmit={handleSave}>
+                        
+                        {/* ======= NEW TIME INPUT ======= */}
+                        <div className='form-group'>
+                            <label htmlFor="Time" className='fromLable'>Time</label>
+                            <input
+                                type="time"
+                                className='fromTextarea'
+                                id="Time"
+                                name="Time"
+                                required
+                                onChange={(e) => onChange?.({ ...value, Time: e.target.value })}
+                            />
+                        </div>
+                        {/* =============================== */}
+
                         <div className='form-group'>
                             <label htmlFor="Behavior" className='fromLable'>Behavior</label>
                             <textarea
@@ -68,6 +82,7 @@ function AddObservationsModel({ open, onClose, value, onChange, onSave }) {
                                 onChange={(e) => onChange?.({ ...value, Trigger: e.target.value })}
                             />
                         </div> 
+
                         <div className='form-group'>
                             <label htmlFor="Note" className='fromLable'>Note</label>
                             <textarea
