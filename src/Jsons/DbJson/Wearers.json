@@ -2,8 +2,8 @@
   "Wearers": {
     "wearer1": {
       "id": "1",
-      "ProfileImage": "/WearersProPic/Maya.png",
-      "FullName": "Maya Perera",
+      "ProfileImage": "/WearersProPic/Vitesh.jpg",
+      "FullName": "Vitesh Patel",
       "Age": "65 Age",
       "WearerStatus": "High",
       "WearerRoom": "Room1",
@@ -63,7 +63,7 @@
     },
     "wearer2": {
       "id": "2",
-      "ProfileImage": "/WearersProPic/Edith.png",
+      "ProfileImage": "/WearersProPic/Edith.jpg",
       "FullName": "Edith Thompson",
       "Age": "62 Age",
       "WearerStatus": "High",
@@ -124,7 +124,7 @@
     },
     "wearer3": {
       "id": "3",
-      "ProfileImage": "/WearersProPic/Mabel.png",
+      "ProfileImage": "/WearersProPic/Mabel.jpg",
       "FullName": "Mabel Whitfield",
       "Age": "60 Age",
       "WearerStatus": "Normal",
@@ -185,8 +185,8 @@
     },
     "wearer4": {
       "id": "4",
-      "ProfileImage": "/WearersProPic/Dorothy.png",
-      "FullName": "Dorothy Hargreaves",
+      "ProfileImage": "/WearersProPic/Dorothy.jpg",
+      "FullName": "Dorothy Brown",
       "Age": "50 Age",
       "WearerStatus": "Normal",
       "WearerRoom": "Room16",
@@ -307,8 +307,8 @@
     },
     "wearer6": {
       "id": "6",
-      "ProfileImage": "/WearersProPic/Ethel.png",
-      "FullName": "Ethel Montgomery",
+      "ProfileImage": "/WearersProPic/Lily.jpg",
+      "FullName": "Lily Tran",
       "Age": "50 Age",
       "WearerStatus": "Normal",
       "WearerRoom": "Room1",

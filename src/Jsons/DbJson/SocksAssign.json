@@ -1,7 +1,7 @@
 {
   "SocksAssign": {
     "socks1": {
-      "wearerName": "Ethel Montgomery",
+      "wearerName": "Lily Tran",
       "CarersName": "jhone Lio",
       "SerialNumber": "#0147852",
       "ConnectionStrength": "70%",
@@ -17,7 +17,7 @@
       "batteryStatus": "Discharging"
     },
     "socks3": {
-      "wearerName": "Dorothy Hargreaves",
+      "wearerName": "Dorothy Brown",
       "CarersName": "Sakila Perera",
       "SerialNumber": "#0369841",
       "ConnectionStrength": "60%",
@@ -33,7 +33,7 @@
       "batteryStatus": "Full"
     },
     "socks5": {
-      "wearerName": "Maya Perera",
+      "wearerName": "Vitesh Patel",
       "CarersName": "Sandra Li",
       "SerialNumber": "#0592638",
       "ConnectionStrength": "75%",

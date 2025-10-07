@@ -24,7 +24,6 @@ function Weares() {
   };
   const wearersObj = wearersData?.Wearers ?? {};
   const tableRows = Object.values(wearersObj)
-    .slice(0, 5)
     .map(w => ({
       id: w.id,
       img: w.ProfileImage,
