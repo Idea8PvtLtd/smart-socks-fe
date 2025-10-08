@@ -1,6 +1,5 @@
 # Chart data folder
-src/ChartData/
-src/ChartData/*
+src/ChartData
 # Logs
 logs
 *.log
