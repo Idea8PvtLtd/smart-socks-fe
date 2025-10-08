@@ -1,39 +1,39 @@
 {
   "Carers": {
     "user1": {
-      "name": "Jhone Lio",
-      "email": "jhoneLio@gmail.com",
-      "password": "jhoneLio@123",
+      "name": "Oliver Smith",
+      "email": "oliversmith@gmail.com",
+      "password": "oliversmith@123",
       "lastLogin": "2024-10-01"
     },
     "user2": {
-      "name": "Sakila Perera",
-      "email": "pererasak@gmail.com",
-      "password": "pererasak@123",
+      "name": "Amelia Johnson",
+      "email": "ameliajohnson@gmail.com",
+      "password": "ameliajohnson@123",
       "lastLogin": "2024-10-02"
     },
     "user3": {
-      "name": "Nimal Raj",
-      "email": "nimalraj@gmail.com",
-      "password": "nimalraj@123",
+      "name": "George Brown",
+      "email": "georgebrown@gmail.com",
+      "password": "georgebrown@123",
       "lastLogin": "2024-10-03"
     },
     "user4": {
-      "name": "Sandra Li",
-      "email": "sandrali@gmail.com",
-      "password": "sandrali@123",
+      "name": "Sophia Wilson",
+      "email": "sophiawilson@gmail.com",
+      "password": "sophiawilson@123",
       "lastLogin": "2024-10-04"
     },
     "user5": {
-      "name": "Dilrukshan Senanayake",
-      "email": "dilrukshan@gmail.com",
-      "password": "dilrukshan@123",
+      "name": "Harry Taylor",
+      "email": "harrytaylor@gmail.com",
+      "password": "harrytaylor@123",
       "lastLogin": "2024-10-05"
     },
     "user6": {
-      "name": "Kasun Madura",
-      "email": "kasunmadura@gmail.com",
-      "password": "kasunmadura@123",
+      "name": "Emily Davies",
+      "email": "emilydavies@gmail.com",
+      "password": "emilydavies@123",
       "lastLogin": "2024-10-06"
     }
   }

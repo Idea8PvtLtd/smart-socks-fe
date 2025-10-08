@@ -27,11 +27,11 @@
         },
         "Calmness": {
           "value": "8",
-          "Confidence": "Low"
+          "Confidence": "High"
         },
         "Mobility": {
           "value": "9",
-          "Confidence": "Low"
+          "Confidence": "High"
         }
       },
       "socksDataSet": {
@@ -88,15 +88,15 @@
       "DrillCard": {
         "Activity": {
           "value": "8",
-          "Confidence": "Low"
+          "Confidence": "High"
         },
         "Calmness": {
           "value": "3",
-          "Confidence": "High"
+          "Confidence": "Low"
         },
         "Mobility": {
           "value": "8",
-          "Confidence": "Low"
+          "Confidence": "High"
         }
       },
       "successFullSupport": {
@@ -149,7 +149,7 @@
       "DrillCard": {
         "Activity": {
           "value": "7",
-          "Confidence": "Low"
+          "Confidence": "High"
         },
         "Calmness": {
           "value": "5",
@@ -157,7 +157,7 @@
         },
         "Mobility": {
           "value": "4",
-          "Confidence": "High"
+          "Confidence": "Low"
         }
       },
       "successFullSupport": {
@@ -210,11 +210,11 @@
       "DrillCard": {
         "Activity": {
           "value": "8",
-          "Confidence": "Low"
+          "Confidence": "High"
         },
         "Calmness": {
           "value": "6",
-          "Confidence": "Low"
+          "Confidence": "High"
         },
         "Mobility": {
           "value": "4",
@@ -271,11 +271,11 @@
       "DrillCard": {
         "Activity": {
           "value": "8",
-          "Confidence": "Low"
+          "Confidence": "High"
         },
         "Calmness": {
           "value": "7",
-          "Confidence": "Low"
+          "Confidence": "High"
         },
         "Mobility": {
           "value": "4",
@@ -332,11 +332,11 @@
       "DrillCard": {
         "Activity": {
           "value": "8",
-          "Confidence": "Low"
+          "Confidence": "High"
         },
         "Calmness": {
           "value": "7",
-          "Confidence": "Low"
+          "Confidence": "High"
         },
         "Mobility": {
           "value": "4",

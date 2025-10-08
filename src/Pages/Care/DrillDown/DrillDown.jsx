@@ -55,12 +55,6 @@ function DrillDown() {
             <div className='cardheader'>
               <h2 className='titel'>{wearerName}</h2>
               <div className='controls'>
-                {/* <select className='compareCardSelect'>
-                  <option>Today</option>
-                  <option>Last 7 days</option>
-                  <option>Last 14 days</option>
-                  <option>Last 30 days</option>
-                </select> */}
               </div>
             </div>
             <div className='cardbodyDrill2'>

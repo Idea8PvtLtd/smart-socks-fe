@@ -1,9 +1,9 @@
 import React from 'react'
 
 const clamp = (v, min, max) => Math.max(min, Math.min(v, max));
-const colorFor = (v) => (v <= 4 ? 'green-bar' : v <= 6.33 ? 'amber-bar' : 'red-bar');
+const colorFor = (v) => (v <= 4 ? 'red-bar' : v <= 6.33 ? 'amber-bar' : 'green-bar');
 
-function BarMeter({ label, value, max = 10, decimals = 2 }) {
+function BarMeter({ label, value, max = 10 }) {
     const v = clamp(Number(value ?? 0), 0, max);
     const pct = (v / max) * 100;
     const barClass = colorFor(v);

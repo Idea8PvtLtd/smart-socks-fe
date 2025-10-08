@@ -159,12 +159,6 @@ function OverviewProfile() {
     // State for see more modal
     const [seeMoreData, setSeeMoreData] = useState({ title: '', content: '', isOpen: false });
 
-    // Handle alert row click
-    const handleAlertClick = (alert) => {
-        setSelectedAlert(alert);
-        setIsModalOpen(true);
-    };
-
     // Handle modal close
     const handleModalClose = () => {
         setIsModalOpen(false);
@@ -189,8 +183,6 @@ function OverviewProfile() {
         return words.length > wordLimit ? words.slice(0, wordLimit).join(' ') : text;
     };
 
-    // Check if wearer has high status to show the three cards
-    const shouldShowCards = selectedWearer && selectedWearer.WearerStatus === "High";
 
     return (
         <>
@@ -283,7 +275,7 @@ function OverviewProfile() {
                                             <p className='socksNames'>Available Socks</p>
                                             <div className='socksIdData'>
                                                 {(selectedWearer?.socksDataSet?.SubSocks
-                                                    ? selectedWearer.socksDataSet.SubSocks.split(',').map((sockId, idx) => (
+                                                    ? selectedWearer.socksDataSet.SubSocks.split(',').map((sockId) => (
                                                         <p className='socksId' key={sockId.trim()}>
                                                             Sock ID : {sockId.trim()}
                                                             <p className='wearerDeviceStatus'>

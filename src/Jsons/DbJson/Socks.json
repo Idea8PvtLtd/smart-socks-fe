@@ -3,49 +3,49 @@
     "socks1": {
       "id": 1,
       "SerialNumber": "#0147852",
-      "CarerName": "John Doe",
+      "CarerName": "Oliver Smith",
       "ConnectionStrength": "Strong",
       "BatteryLevel": "85%",
       "BatteryStatus": "Charging"
     },
     "socks2": {
       "SerialNumber": "#0246895",
-      "CarerName": "Sakila Perera",
+      "CarerName": "Amelia Johnson",
       "ConnectionStrength": "Weak",
       "BatteryLevel": "45%",
       "BatteryStatus": "Discharging"
     },
     "socks3": {
       "SerialNumber": "#0369841",
-      "CarerName": "Nimal Raj",
+      "CarerName": "George Brown",
       "ConnectionStrength": "Moderate",
       "BatteryLevel": "60%",
       "BatteryStatus": "Charging"
     },
     "socks4": {
       "SerialNumber": "#0481593",
-      "CarerName": "Sandra Li",
+      "CarerName": "Sophia Wilson",
       "ConnectionStrength": "Strong",
       "BatteryLevel": "90%",
       "BatteryStatus": "Full"
     },
     "socks5": {
       "SerialNumber": "#0592638",
-      "CarerName": "Dilrukshan Senanayake",
+      "CarerName": "Harry Taylor",
       "ConnectionStrength": "Weak",
       "BatteryLevel": "30%",
       "BatteryStatus": "Discharging"
     },
     "socks6": {
       "SerialNumber": "#0625471",
-      "CarerName": "Kasun Madura",
+      "CarerName": "Emily Davies",
       "ConnectionStrength": "Moderate",
       "BatteryLevel": "55%",
       "BatteryStatus": "Charging"
     },
     "socks7": {
       "SerialNumber": "#0784216",
-      "CarerName": "John Doe",
+      "CarerName": "Oliver Smith",
       "ConnectionStrength": "Strong",
       "BatteryLevel": "80%",
       "BatteryStatus": "Full"
