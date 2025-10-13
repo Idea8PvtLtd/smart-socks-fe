@@ -256,7 +256,7 @@ def ensure_file_with_header(dir_path: str, wearer_id: str) -> str:
     if not os.path.exists(file_path) or os.path.getsize(file_path) == 0:
         with open(file_path, "w", newline="", encoding="utf-8") as f:
             csv.writer(f).writerow(["x", "y", "time", "date"])
-        print(f"✅ header created: {file_path}")
+        # print(f"✅ header created: {file_path}")
     return file_path
 
 def append_row(file_path: str, y_str: str, ts: datetime, tz: str):
