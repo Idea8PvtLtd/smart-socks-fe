@@ -24,7 +24,7 @@ class MobilitySubChartsPush {
   getCSVPath() {
     const wearerId = this.getSelectedWearerId();
     // Return the correct path based on dataType
-    return `./data/${this.dataType}/${wearerId}.csv`;
+    return `/app/data/${this.dataType}/${wearerId}.csv`;
   }
 
   updateSelectedWearer() {

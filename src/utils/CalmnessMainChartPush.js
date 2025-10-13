@@ -21,7 +21,7 @@ class CalmnessMainChartPush {
 
   getCSVPath() {
     const wearerId = this.getSelectedWearerId();
-    return `./data/CalmnessMainChart/${wearerId}.csv`;
+    return `/app/data/CalmnessMainChart/${wearerId}.csv`;
   }
 
   updateSelectedWearer() {
