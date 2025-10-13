@@ -24,7 +24,7 @@ class ActivitySubChartPush {
   getCSVPath() {
     const wearerId = this.getSelectedWearerId();
     // Return the correct path based on dataType
-    return `/src/ChartData/${this.dataType}/${wearerId}.csv`;
+    return `./data/${this.dataType}/${wearerId}.csv`;
   }
 
   updateSelectedWearer() {

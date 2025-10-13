@@ -22,7 +22,7 @@ class MobilityMainChartPush {
 
   getCSVPath() {
     const wearerId = this.getSelectedWearerId();
-    return `/src/ChartData/MobilityMainChart/${wearerId}.csv`;
+    return `./data/MobilityMainChart/${wearerId}.csv`;
   }
 
   updateSelectedWearer() {

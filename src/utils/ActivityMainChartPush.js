@@ -23,7 +23,7 @@ class ActivityMainChartPush {
   getCSVPath() {
     const wearerId = this.getSelectedWearerId();
     // Adjust if your asset path differs in production builds
-    return `/src/ChartData/ActivityMainChart/${wearerId}.csv`;
+    return `./data/ActivityMainChart/${wearerId}.csv`;
   }
 
   updateSelectedWearer() {
