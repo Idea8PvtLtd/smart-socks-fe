@@ -4,13 +4,15 @@ import math
 import os
 import time
 import random
+from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Dict, List, Set, Callable, Optional, Tuple
 
 from dotenv import load_dotenv
 
 # ================== LOAD .ENV ==================
-load_dotenv(dotenv_path="Backend\.env.backend")
+ENV_PATH = Path(__file__).resolve().parent / ".env.backend"
+load_dotenv(dotenv_path=ENV_PATH)
 
 WEARERS_JSON = os.getenv("WEARERS_JSON")
 

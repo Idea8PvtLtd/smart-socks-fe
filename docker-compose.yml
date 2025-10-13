@@ -1,0 +1,21 @@
+services:
+  smart-socks-demo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_APP_ENV: "production"
+    container_name: smart-socks-demo
+    env_file:
+      - Backend/.env.backend
+    restart: unless-stopped
+    labels:
+      - "com.project=smart-socks"
+      - "traefik.enable=true"
+      - "traefik.http.routers.smart-socks-demo.rule=Host(`smart-socks.idea8.solutions`)"
+      - "traefik.http.routers.smart-socks-demo.entrypoints=websecure"
+      - "traefik.http.routers.smart-socks-demo.tls.certresolver=letsencrypt"
+      - "traefik.http.services.smart-socks-demo.loadbalancer.server.port=80"
+      - "traefik.http.routers.smart-socks-demo.middlewares=security-headers"
+    networks:
+      - traefik-net
