@@ -403,7 +403,7 @@ def backfill_one_file(chart: str, dir_path: str, wearer_id: str, tz: str, requir
             writer.writerow([x_str, y_str, ts.strftime("%H:%M:%S"), ts.strftime("%Y-%m-%d")])
             ts += step
 
-    print(f"📦 backfilled {chart}/{wearer_id}.csv from {start_ts} to {backfill_end_exclusive} ({BACKFILL_STEP} steps)")
+    # print(f"📦 backfilled {chart}/{wearer_id}.csv from {start_ts} to {backfill_end_exclusive} ({BACKFILL_STEP} steps)")
 
 def backfill_all(configured: Dict[str, str], wearer_ids: Set[str], tz: str):
     """
