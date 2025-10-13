@@ -1,4 +1,5 @@
 import Papa from 'papaparse';
+import { DATA_BASE_DIR } from './FilterUtils';
 
 class ActivityMainChartPush {
   constructor({ pollMs = 1000, maxPoints = 0 } = {}) {
@@ -23,7 +24,7 @@ class ActivityMainChartPush {
   getCSVPath() {
     const wearerId = this.getSelectedWearerId();
     // Adjust if your asset path differs in production builds
-    return `/app/data/ActivityMainChart/${wearerId}.csv`;
+    return `${DATA_BASE_DIR}/ActivityMainChart/${wearerId}.csv`;
   }
 
   updateSelectedWearer() {

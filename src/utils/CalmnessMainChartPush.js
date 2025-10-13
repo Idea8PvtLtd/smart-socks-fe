@@ -1,4 +1,5 @@
 import Papa from 'papaparse';
+import { DATA_BASE_DIR } from './FilterUtils';
 
 class CalmnessMainChartPush {
   constructor({ pollMs = 1000, maxPoints = 0 } = {}) {
@@ -21,7 +22,7 @@ class CalmnessMainChartPush {
 
   getCSVPath() {
     const wearerId = this.getSelectedWearerId();
-    return `/app/data/CalmnessMainChart/${wearerId}.csv`;
+    return `${DATA_BASE_DIR}/CalmnessMainChart/${wearerId}.csv`;
   }
 
   updateSelectedWearer() {

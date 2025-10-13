@@ -1,4 +1,5 @@
 import Papa from 'papaparse';
+import { DATA_BASE_DIR } from './FilterUtils';
 
 class MobilityMainChartPush {
   constructor({ pollMs = 1000, maxPoints = 0 } = {}) {
@@ -22,7 +23,7 @@ class MobilityMainChartPush {
 
   getCSVPath() {
     const wearerId = this.getSelectedWearerId();
-    return `/app/data/MobilityMainChart/${wearerId}.csv`;
+    return `${DATA_BASE_DIR}/MobilityMainChart/${wearerId}.csv`;
   }
 
   updateSelectedWearer() {

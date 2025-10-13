@@ -30,3 +30,5 @@ export function filterDataByDateRange(data, startDate, periodUnit) {
         return pointDate >= start && pointDate < end;
     });
 }
+
+export const DATA_BASE_DIR = '/data'; // Base directory for data files

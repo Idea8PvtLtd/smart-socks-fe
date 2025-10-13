@@ -1,4 +1,5 @@
 import Papa from 'papaparse';
+import { DATA_BASE_DIR } from './FilterUtils';
 
 class CalmnessSubChartsPush {
   constructor({ pollMs = 1000, maxPoints = 0, dataType = 'PulseRateVariability' } = {}) {
@@ -24,7 +25,7 @@ class CalmnessSubChartsPush {
   getCSVPath() {
     const wearerId = this.getSelectedWearerId();
     // Return the correct path based on dataType
-    return `/app/data/${this.dataType}/${wearerId}.csv`;
+    return `${DATA_BASE_DIR}/${this.dataType}/${wearerId}.csv`;
   }
 
   updateSelectedWearer() {
