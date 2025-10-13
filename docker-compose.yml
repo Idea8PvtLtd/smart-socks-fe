@@ -12,7 +12,7 @@ services:
     labels:
       - "com.project=smart-socks"
       - "traefik.enable=true"
-      - "traefik.http.routers.smart-socks-demo.rule=Host(`smart-socks.idea8.solutions`)"
+      - "traefik.http.routers.smart-socks-demo.rule=Host(`smart-socks.idea8.cloud`)"
       - "traefik.http.routers.smart-socks-demo.entrypoints=websecure"
       - "traefik.http.routers.smart-socks-demo.tls.certresolver=letsencrypt"
       - "traefik.http.services.smart-socks-demo.loadbalancer.server.port=80"
