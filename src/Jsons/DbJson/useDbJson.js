@@ -1,84 +1,45 @@
-import { useEffect, useState } from 'react';
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
-const dbCache = new Map();
-
-function buildUrl(path) {
-  return `${API_BASE}${path}`;
-}
-
-async function fetchDbResource(resource) {
-  if (dbCache.has(resource)) {
-    return dbCache.get(resource);
-  }
-
-  const res = await fetch(buildUrl(`/api/db/${resource}`), { cache: 'no-store' });
-  if (!res.ok) {
-    throw new Error(`Failed to fetch ${resource}: HTTP ${res.status}`);
-  }
-
-  const data = await res.json();
-  dbCache.set(resource, data);
-  return data;
-}
-
-function useDbResource(resource, fallback) {
-  const [data, setData] = useState(fallback);
-
-  useEffect(() => {
-    let active = true;
-
-    fetchDbResource(resource)
-      .then((json) => {
-        if (active) {
-          setData(json);
-        }
-      })
-      .catch((err) => {
-        // eslint-disable-next-line no-console
-        console.error(`DB resource error (${resource}):`, err);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [resource]);
-
-  return data;
-}
+import wearersJson from './Wearers.json';
+import carersJson from './Carers.json';
+import locationsJson from './Locations.json';
+import socksJson from './Socks.json';
+import socksAssignJson from './SocksAssign.json';
+import alertsJson from './Alerts.json';
+import notificationJson from './Notification.json';
+import notesJson from './Notes.json';
+import authJson from './Auth.json';
 
 export function useWearersData() {
-  return useDbResource('wearers', { Wearers: {} });
+  return wearersJson;
 }
 
 export function useCarersData() {
-  return useDbResource('carers', { Carers: {} });
+  return carersJson;
 }
 
 export function useLocationsData() {
-  return useDbResource('locations', { Locations: {} });
+  return locationsJson;
 }
 
 export function useSocksData() {
-  return useDbResource('socks', { Socks: {} });
+  return socksJson;
 }
 
 export function useSocksAssignData() {
-  return useDbResource('socksassign', { SocksAssign: {} });
+  return socksAssignJson;
 }
 
 export function useAlertsData() {
-  return useDbResource('alerts', { Alert: {} });
+  return alertsJson;
 }
 
 export function useNotificationsData() {
-  return useDbResource('notification', { notification: {} });
+  return notificationJson;
 }
 
 export function useNotesData() {
-  return useDbResource('notes', { Notes: [] });
+  return notesJson;
 }
 
 export function useAuthData() {
-  return useDbResource('auth', { CareLogin: {} });
+  return authJson;
 }

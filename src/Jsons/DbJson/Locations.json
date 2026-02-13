@@ -1,0 +1,34 @@
+{
+  "Locations": {
+    "location1": {
+      "name": "Milbotix QA",
+      "address": "No 123, Main Street, Colombo",
+      "areas": ["First Floor", "Ground Floor", "Second floor"],
+      "lastLogin": "2024-10-01"
+    },
+    "location2": {
+      "name": "Sunrise Care Home",
+      "address": "45 Lake Road, Kandy",
+      "areas": ["Reception", "Dining Hall", "Second floor"],
+      "lastLogin": "2024-09-25"
+    },
+    "location3": {
+      "name": "Silverline Assisted Living",
+      "address": "78 Temple Lane, Galle",
+      "areas": ["First Floor", "Garden Area", "Nursing Station"],
+      "lastLogin": "2024-08-15"
+    },
+    "location4": {
+      "name": "Harmony Senior Center",
+      "address": "102 River Street, Negombo",
+      "areas": ["Main Hall", "Therapy Room", "Cafeteria"],
+      "lastLogin": "2024-09-30"
+    },
+    "location5": {
+      "name": "Evergreen Retirement Home",
+      "address": "210 Palm Avenue, Jaffna",
+      "areas": ["West Wing", "East Wing", "Recreation Area"],
+      "lastLogin": "2024-07-20"
+    }
+  }
+}

@@ -1,0 +1,370 @@
+{
+  "Wearers": {
+    "wearer1": {
+      "id": "1",
+      "ProfileImage": "/WearersProPic/Vitesh.jpg",
+      "FullName": "Vitesh Patel",
+      "Age": "65 Age",
+      "WearerStatus": "High",
+      "WearerRoom": "Room1",
+      "Activity": "4",
+      "Calmness": "8",
+      "Mobility": "9",
+      "Wifi": "Connected",
+      "BirthDate": "1958-05-15",
+      "Battery": "90%",
+      "floor": "Ground Floor",
+      "DeviceStatus": "Online",
+      "Summary": {
+        "Total Steps": "5500",
+        "Total Turns": "55",
+        "Total Stands": "20"
+      },
+      "DrillCard": {
+        "Activity": {
+          "value": "4",
+          "Confidence": "Medium"
+        },
+        "Calmness": {
+          "value": "8",
+          "Confidence": "High"
+        },
+        "Mobility": {
+          "value": "9",
+          "Confidence": "High"
+        }
+      },
+      "socksDataSet": {
+        "MainSockID": "#288200",
+        "SubSocks": "#280820, #280821, #280822"
+      },
+      "successFullSupport": {
+        "line1": "Gave Assurance",
+        "line2": "Put On Favorite Music",
+        "line3": "Change Environment",
+        "line4": "Offered a warm drink or snack",
+        "line5": "Redirected attention to a meaningful task or hobby"
+      },
+      "KnownTriggers": {
+        "trigger1": "Sensory Overload",
+        "trigger2": "Physical Discomfort",
+        "trigger3": "Pain"
+      },
+      "CommonTriggers": {
+        "trigger1": "Personal Care",
+        "trigger2": "Suspicious Thoughts",
+        "trigger3": "Physical Discomfort"
+      },
+      "NestedItems": {
+        "item1": "Socks 1",
+        "item2": "Socks 2",
+        "item3": "Socks 3"
+      }
+    },
+    "wearer2": {
+      "id": "2",
+      "ProfileImage": "/WearersProPic/Edith.jpg",
+      "FullName": "Edith Thompson",
+      "Age": "62 Age",
+      "WearerStatus": "High",
+      "WearerRoom": "Room12",
+      "Activity": "8",
+      "Calmness": "5",
+      "Mobility": "8",
+      "BirthDate": "1958-05-15",
+      "Wifi": "Connected",
+      "floor": "First Floor",
+      "Battery": "88%",
+      "DeviceStatus": "Online",
+      "socksDataSet": {
+        "MainSockID": "#288900",
+        "SubSocks": "#280870, #220821, #280022"
+      },
+      "Summary": {
+        "Total Steps": "5500",
+        "Total Turns": "55",
+        "Total Stands": "20"
+      },
+      "DrillCard": {
+        "Activity": {
+          "value": "8",
+          "Confidence": "High"
+        },
+        "Calmness": {
+          "value": "3",
+          "Confidence": "Low"
+        },
+        "Mobility": {
+          "value": "8",
+          "Confidence": "High"
+        }
+      },
+      "successFullSupport": {
+        "line1": "Listened actively to concerns",
+        "line2": "Encouraged a short walk",
+        "line3": "Reduced background noise",
+        "line4": "Provided a warm cup of tea",
+        "line5": "Introduced a calming activity like drawing"
+      },
+      "KnownTriggers": {
+        "trigger1": "Loud Noises",
+        "trigger2": "Unfamiliar Visitors",
+        "trigger3": "Missed Meals"
+      },
+      "CommonTriggers": {
+        "trigger1": "Isolation",
+        "trigger2": "Crowded Spaces",
+        "trigger3": "Routine Disruption"
+      },
+      "NestedItems": {
+        "item1": "Socks 1",
+        "item2": "Socks 2",
+        "item3": "Socks 3"
+      }
+    },
+    "wearer3": {
+      "id": "3",
+      "ProfileImage": "/WearersProPic/Mabel.jpg",
+      "FullName": "Mabel Whitfield",
+      "Age": "60 Age",
+      "WearerStatus": "Normal",
+      "WearerRoom": "Room40",
+      "Activity": "6",
+      "Calmness": "5",
+      "Mobility": "4",
+      "Wifi": "Connected",
+      "floor": "Second floor",
+      "BirthDate": "1958-05-15",
+      "Battery": "90%",
+      "DeviceStatus": "Online",
+      "socksDataSet": {
+        "MainSockID": "#288200",
+        "SubSocks": "#280820, #280821, #280822"
+      },
+      "Summary": {
+        "Total Steps": "5500",
+        "Total Turns": "55",
+        "Total Stands": "20"
+      },
+      "DrillCard": {
+        "Activity": {
+          "value": "7",
+          "Confidence": "High"
+        },
+        "Calmness": {
+          "value": "5",
+          "Confidence": "Medium"
+        },
+        "Mobility": {
+          "value": "4",
+          "Confidence": "Low"
+        }
+      },
+      "successFullSupport": {
+        "line1": "Validated feelings",
+        "line2": "Suggested gentle stretching",
+        "line3": "Opened a window for fresh air",
+        "line4": "Put on familiar TV program",
+        "line5": "Encouraged looking through photo album"
+      },
+      "KnownTriggers": {
+        "trigger1": "Bright Lights",
+        "trigger2": "Overcrowding",
+        "trigger3": "Strong Smells"
+      },
+      "CommonTriggers": {
+        "trigger1": "Noise at Night",
+        "trigger2": "Unexpected Touch",
+        "trigger3": "Temperature Changes"
+      },
+      "NestedItems": {
+        "item1": "Socks 1",
+        "item2": "Socks 2",
+        "item3": "Socks 3"
+      }
+    },
+    "wearer4": {
+      "id": "4",
+      "ProfileImage": "/WearersProPic/Dorothy.jpg",
+      "FullName": "Dorothy Brown",
+      "Age": "50 Age",
+      "WearerStatus": "Normal",
+      "WearerRoom": "Room16",
+      "Activity": "0",
+      "Calmness": "0",
+      "Mobility": "0",
+      "BirthDate": "1958-05-15",
+      "floor": "Second floor",
+      "Wifi": "Disconnected",
+      "Battery": "0%",
+      "DeviceStatus": "Offline",
+      "socksDataSet": {
+        "MainSockID": "#288200",
+        "SubSocks": "#280820, #280821, #280822"
+      },
+      "Summary": {
+        "Total Steps": "5500",
+        "Total Turns": "55",
+        "Total Stands": "20"
+      },
+      "DrillCard": {
+        "Activity": {
+          "value": "8",
+          "Confidence": "High"
+        },
+        "Calmness": {
+          "value": "6",
+          "Confidence": "High"
+        },
+        "Mobility": {
+          "value": "4",
+          "Confidence": "Medium"
+        }
+      },
+      "successFullSupport": {
+        "line1": "Spoke slowly and clearly",
+        "line2": "Guided to a quieter space",
+        "line3": "Played soft instrumental music",
+        "line4": "Offered light snack",
+        "line5": "Engaged in a favorite hobby like knitting"
+      },
+      "KnownTriggers": {
+        "trigger1": "Being Alone",
+        "trigger2": "Skipped Medication",
+        "trigger3": "Confusing Instructions"
+      },
+      "CommonTriggers": {
+        "trigger1": "Low Lighting",
+        "trigger2": "Change in Routine",
+        "trigger3": "New Care Staff"
+      },
+      "NestedItems": {
+        "item1": "Socks 1",
+        "item2": "Socks 2",
+        "item3": "Socks 3"
+      }
+    },
+    "wearer5": {
+      "id": "5",
+      "ProfileImage": "/WearersProPic/Agnes.png",
+      "FullName": "Agnes Cartwright",
+      "Age": "65 Age",
+      "WearerStatus": "Normal",
+      "WearerRoom": "Room10",
+      "Activity": "0",
+      "Calmness": "0",
+      "Mobility": "0",
+      "BirthDate": "1958-05-15",
+      "Wifi": "Disconnected",
+      "floor": "Ground Floor",
+      "Battery": "0%",
+      "DeviceStatus": "Offline",
+      "socksDataSet": {
+        "MainSockID": "#288200",
+        "SubSocks": "#280820, #280821, #280822"
+      },
+      "Summary": {
+        "Total Steps": "5500",
+        "Total Turns": "55",
+        "Total Stands": "20"
+      },
+      "DrillCard": {
+        "Activity": {
+          "value": "8",
+          "Confidence": "High"
+        },
+        "Calmness": {
+          "value": "7",
+          "Confidence": "High"
+        },
+        "Mobility": {
+          "value": "4",
+          "Confidence": "Medium"
+        }
+      },
+      "successFullSupport": {
+        "line1": "Gave gentle physical reassurance like holding hand",
+        "line2": "Read aloud from a favorite book",
+        "line3": "Encouraged participation in light chores",
+        "line4": "Offered a comforting warm drink",
+        "line5": "Used humor to lighten the mood"
+      },
+      "KnownTriggers": {
+        "trigger1": "Arguments Nearby",
+        "trigger2": "Cold Weather",
+        "trigger3": "Unfamiliar Places"
+      },
+      "CommonTriggers": {
+        "trigger1": "Missed Family Visits",
+        "trigger2": "Too Much Activity",
+        "trigger3": "Skipped Meals"
+      },
+      "NestedItems": {
+        "item1": "Socks 1",
+        "item2": "Socks 2",
+        "item3": "Socks 3"
+      }
+    },
+    "wearer6": {
+      "id": "6",
+      "ProfileImage": "/WearersProPic/Lily.jpg",
+      "FullName": "Lily Tran",
+      "Age": "50 Age",
+      "WearerStatus": "Normal",
+      "WearerRoom": "Room1",
+      "Activity": "4",
+      "Calmness": "3",
+      "BirthDate": "1958-05-15",
+      "Mobility": "5",
+      "Wifi": "Connected",
+      "floor": "First Floor",
+      "Battery": "80%",
+      "socksDataSet": {
+        "MainSockID": "#288200",
+        "SubSocks": "#280820, #280821"
+      },
+      "DeviceStatus": "Online",
+      "Summary": {
+        "Total Steps": "5500",
+        "Total Turns": "55",
+        "Total Stands": "20"
+      },
+      "DrillCard": {
+        "Activity": {
+          "value": "8",
+          "Confidence": "High"
+        },
+        "Calmness": {
+          "value": "7",
+          "Confidence": "High"
+        },
+        "Mobility": {
+          "value": "4",
+          "Confidence": "Medium"
+        }
+      },
+      "successFullSupport": {
+        "line1": "Reminded of upcoming positive event",
+        "line2": "Encouraged humming or singing together",
+        "line3": "Provided sensory object like soft cushion",
+        "line4": "Took a brief outdoor walk",
+        "line5": "Redirected focus to a puzzle or game"
+      },
+      "KnownTriggers": {
+        "trigger1": "Overheating",
+        "trigger2": "Too Much Walking",
+        "trigger3": "Sudden Loud Voices"
+      },
+      "CommonTriggers": {
+        "trigger1": "Evening Restlessness",
+        "trigger2": "New Surroundings",
+        "trigger3": "Long Wait Times"
+      },
+      "NestedItems": {
+        "item1": "Socks 1",
+        "item2": "Socks 2",
+        "item3": "Socks 3"
+      }
+    }
+  }
+}
