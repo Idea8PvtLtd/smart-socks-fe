@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000';
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? '';
 
 export async function fetchChartPoints(metric, wearerId, since = 0) {
   const params = new URLSearchParams();

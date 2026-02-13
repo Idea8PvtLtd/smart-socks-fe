@@ -1,4 +1,5 @@
 import { fetchChartPoints } from './ChartApi';
+import { normalizeChartPoints } from './chartDataUtils';
 
 class MobilityMainChartPush {
   constructor({ pollMs = 1000, maxPoints = 0 } = {}) {
@@ -63,7 +64,7 @@ class MobilityMainChartPush {
       : await this.fetchData();
 
     if (delta.length > 0) {
-      this.data = forceFullReload ? delta : this.data.concat(delta);
+      this.data = normalizeChartPoints(forceFullReload ? delta : this.data.concat(delta));
       this.maybeTrim();
       this.notifyListeners();
     }
@@ -115,7 +116,7 @@ class MobilityMainChartPush {
   }
 
   getCurrentData() {
-    return this.data;
+    return normalizeChartPoints(this.data);
   }
 }
 

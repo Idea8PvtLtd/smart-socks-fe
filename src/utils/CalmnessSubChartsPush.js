@@ -1,4 +1,5 @@
 import { fetchChartPoints } from './ChartApi';
+import { normalizeChartPoints } from './chartDataUtils';
 
 class CalmnessSubChartsPush {
   constructor({ pollMs = 1000, maxPoints = 0, dataType = 'PulseRateVariability' } = {}) {
@@ -63,7 +64,7 @@ class CalmnessSubChartsPush {
       : await this.fetchData();
 
     if (delta.length > 0) {
-      this.data = forceFullReload ? delta : this.data.concat(delta);
+      this.data = normalizeChartPoints(forceFullReload ? delta : this.data.concat(delta));
       this.maybeTrim();
       this.notifyListeners();
     }
@@ -115,7 +116,7 @@ class CalmnessSubChartsPush {
   }
 
   getCurrentData() {
-    return this.data;
+    return normalizeChartPoints(this.data);
   }
 }
 
