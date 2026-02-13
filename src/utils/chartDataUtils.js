@@ -16,3 +16,7 @@ export function normalizeChartPoints(points) {
 
   return Array.from(byTime.values()).sort((a, b) => a.time - b.time);
 }
+
+export function mergeChartPoints(currentPoints, incomingPoints) {
+  return normalizeChartPoints([...(currentPoints || []), ...(incomingPoints || [])]);
+}
