@@ -189,9 +189,18 @@ function CompareChartComponents({
 
   // Fetch live data
   useEffect(() => {
+    const activeSources = Array.from(
+      new Set(activeSeries.map((series) => DATA_SOURCES[series.dataKey]).filter(Boolean))
+    );
+
+    if (activeSources.length === 0) {
+      setLiveData({});
+      return undefined;
+    }
+
     const updateChartData = () => {
       const newData = {};
-      SERIES_CONFIG.forEach((series) => {
+      activeSeries.forEach((series) => {
         const source = DATA_SOURCES[series.dataKey];
         if (!source) return;
         let raw = source.getCurrentData();
@@ -204,16 +213,16 @@ function CompareChartComponents({
       setLiveData(newData);
     };
 
-    Object.values(DATA_SOURCES).forEach((s) => s?.addListener?.(updateChartData));
-    Object.values(DATA_SOURCES).forEach((s) => s?.startLiveUpdates?.());
+    activeSources.forEach((source) => source.addListener(updateChartData));
+    activeSources.forEach((source) => source.startLiveUpdates());
 
     updateChartData();
 
     return () => {
-      Object.values(DATA_SOURCES).forEach((s) => s?.removeListener?.(updateChartData));
-      Object.values(DATA_SOURCES).forEach((s) => s?.stopLiveUpdates?.());
+      activeSources.forEach((source) => source.removeListener(updateChartData));
+      activeSources.forEach((source) => source.stopLiveUpdates());
     };
-  }, [startDate, periodUnit]);
+  }, [toggles, startDate, periodUnit]);
 
   // Build/Update the chart
   useEffect(() => {

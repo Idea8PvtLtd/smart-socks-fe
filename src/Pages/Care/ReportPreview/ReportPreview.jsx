@@ -11,7 +11,7 @@ import MobilityChartAllComponents from '../DrillDown/Pages/Components/MobilityCh
 import CalmnessChartAllComponents from '../DrillDown/Pages/Components/CalmnessChartComponents';
 import NavBar from '../../../Components/NavBar/NavBar';
 import SideBar from '../../../Components/SideBar/SideBar';
-import wearersData from '../../../Jsons/DbJson/Wearers.json';
+import { useWearersData } from '../../../Jsons/DbJson/useDbJson';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import DatePicker from "react-datepicker";
@@ -19,6 +19,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import './ReportPreview.css'
 
 function ReportPreview() {
+  const wearersData = useWearersData();
     const reportContentRef = useRef(null);
     const activityChartsRef = useRef(null);
     const calmnessChartsRef = useRef(null);
@@ -439,8 +440,8 @@ function ReportPreview() {
                             </div>
                         </div>
 
-                        {/* Hidden PDF Chart Sections */}
-                        <PDFChartSections />
+                        {/* Hidden PDF Chart Sections (mount only while exporting to avoid background polling) */}
+                        {isGeneratingPDF && <PDFChartSections />}
 
                         <div className='reportPrevCont' ref={reportContentRef}>
                             {selectedWearers.length === 0 ? (

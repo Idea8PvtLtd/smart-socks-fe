@@ -3,12 +3,13 @@ import '../../setting.css'
 import NavBar from '../../../../../Components/NavBar/NavBar';
 import SideBar from '../../../../../Components/SideBar/SideBar';
 import { MdEdit, MdDelete } from "react-icons/md";
-import wearersData from '../../../../../Jsons/DbJson/Wearers.json';
+import { useWearersData } from '../../../../../Jsons/DbJson/useDbJson';
 import AddWearesModel from './Components/AddWeares';
 import { IoSearchOutline } from "react-icons/io5";
 import EditWeares from './Components/EditWeares';
 import DeleteWeares from './Components/DeleteWeares';
 function Weares() {
+  const wearersData = useWearersData();
   const [showAddObsModal, setShowAddObsModal] = useState(false);
   const [observationInput, setObservationInput] = useState("");
   const [showEditModal, setShowEditModal] = useState(false);

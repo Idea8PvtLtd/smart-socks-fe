@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import './Compare.css'
 import NavBar from '../../../Components/NavBar/NavBar'
 import SideBar from '../../../Components/SideBar/SideBar'
-import wearersData from '../../../Jsons/DbJson/Wearers.json'
+import { useWearersData } from '../../../Jsons/DbJson/useDbJson'
 import CompareChartComponents from './Components/CompareChartComponents'
 const cardSets = [
   {
@@ -35,6 +35,7 @@ const cardSets = [
 ];
 
 function Compare() {
+  const wearersData = useWearersData();
   // put these near your other useState hooks
   const [visible, setVisible] = useState(null);
   const [activeOrder, setActiveOrder] = useState([]);
@@ -85,8 +86,8 @@ function Compare() {
   };
 
 
-  const wearer = wearersData.Wearers.wearer1;
-  const drillCard = wearer.DrillCard;
+  const wearer = wearersData?.Wearers?.wearer1 ?? {};
+  const drillCard = wearer?.DrillCard ?? {};
 
 
   // Color mapping for confidence levels

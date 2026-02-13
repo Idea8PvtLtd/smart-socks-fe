@@ -3,13 +3,14 @@ import '../../setting.css';
 import NavBar from '../../../../../Components/NavBar/NavBar';
 import SideBar from '../../../../../Components/SideBar/SideBar';
 import { MdEdit, MdDelete } from 'react-icons/md';
-import socksFile from '../../../../../Jsons/DbJson/SocksAssign.json';
+import { useSocksAssignData } from '../../../../../Jsons/DbJson/useDbJson';
 import AddSocksModel from './Components/AddSocks';
 import EditSocks from './Components/EditSocks';
 import DeleteSocks from './Components/DeleteSocks';
 import { IoSearchOutline } from 'react-icons/io5';
 
 function Socks() {
+  const socksFile = useSocksAssignData();
   // ------- Source data (from JSON) -> local state so we can add/edit/delete in UI -------
   const initialSocksObj = socksFile?.SocksAssign ?? {};
   // Normalize to array of rows we can mutate locally

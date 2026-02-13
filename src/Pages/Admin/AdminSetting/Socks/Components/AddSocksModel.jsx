@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import AlertDemo from '../../../../../Components/Alert/AlertDemo';
 import content from '../../../../../Jsons/Content/Content.json';
-import carersData from '../../../../../Jsons/DbJson/Carers.json';
+import { useCarersData } from '../../../../../Jsons/DbJson/useDbJson';
 
 function AddSocksModel({ open, onClose, value, onChange, onSave }) {
+  const carersData = useCarersData();
   const [alertType, setAlertType] = useState('');
   const [carersNames, setCarersNames] = useState([]);
 
@@ -28,7 +29,7 @@ function AddSocksModel({ open, onClose, value, onChange, onSave }) {
       .map((c) => c?.name ?? c?.CarersName)
       .filter(Boolean);
     setCarersNames(names);
-  }, []);
+  }, [carersData]);
 
   if (!open) return null;
 

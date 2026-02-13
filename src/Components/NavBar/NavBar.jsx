@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './nav.css';
 import { FaRegUserCircle } from "react-icons/fa";
 import { FaBell } from "react-icons/fa6";
-import wearersData from '../../Jsons/DbJson/Wearers.json';
+import { useWearersData } from '../../Jsons/DbJson/useDbJson';
 import Notification from '../../Pages/Care/Notification/Notification';
 import { FaRegBell } from "react-icons/fa6";
 import { GiHamburgerMenu } from "react-icons/gi";
@@ -10,6 +10,7 @@ import { IoMdClose } from "react-icons/io";
 import SideBar from '../SideBar/SideBar'; // Import sidebar
 
 function NavBar() {
+  const wearersData = useWearersData();
   const [wearerName, setWearerName] = useState('');
   const [wearerFloor, setWearerFloor] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
@@ -35,7 +36,7 @@ function NavBar() {
     } catch (err) {
       console.error('Failed to read wearers JSON', err);
     }
-  }, []);
+  }, [wearersData]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 1500);

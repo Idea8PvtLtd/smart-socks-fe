@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import AddObservationsModel from '../../../Care/Observations/AddObservationsModel';
 import NavBar from '../../../../Components/NavBar/NavBar'
 import SideBar from '../../../../Components/SideBar/SideBar'
-import wearersData from '../../../../Jsons/DbJson/Wearers.json';
-import alertsData from '../../../../Jsons/DbJson/Alerts.json';
+import { useWearersData } from '../../../../Jsons/DbJson/useDbJson';
+import { useAlertsData } from '../../../../Jsons/DbJson/useDbJson';
 import { RiWifiOffLine, RiWifiLine } from "react-icons/ri";
 import { GiBattery100 } from "react-icons/gi";
 import { MdDateRange } from "react-icons/md";
@@ -12,6 +12,8 @@ import { FaArrowLeftLong } from "react-icons/fa6";
 import BarChart from '../Components/BarChart'
 
 function WearerObservations() {
+  const wearersData = useWearersData();
+  const alertsData = useAlertsData();
     const [showAddObsModal, setShowAddObsModal] = useState(false);
     const [observationInput, setObservationInput] = useState("");
     const [seeMoreData, setSeeMoreData] = useState({ title: '', content: '', isOpen: false });
@@ -144,11 +146,11 @@ function WearerObservations() {
                                                         /> {selectedWearer.Battery}</p>
                                                     <p className='wearerDeviceStatus'>
                                                         <div className={
-                                                            selectedWearer.DeviceStatus === "Online"
+                                                            selectedWearer?.DeviceStatus === "Online"
                                                                 ? "statusDotOnline"
                                                                 : "statusDotOffline"
                                                         }></div>
-                                                        {selectedWearer.DeviceStatus}</p>
+                                                        {selectedWearer?.DeviceStatus}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -162,11 +164,11 @@ function WearerObservations() {
                                                 Sock ID : {selectedWearer?.socksDataSet?.MainSockID || 'N/A'}
                                                 <p className='wearerDeviceStatus'>
                                                     <div className={
-                                                        selectedWearer.DeviceStatus === "Online"
+                                                        selectedWearer?.DeviceStatus === "Online"
                                                             ? "statusDotOnline"
                                                             : "statusDotOffline"
                                                     }></div>
-                                                    {selectedWearer.DeviceStatus}
+                                                    {selectedWearer?.DeviceStatus}
                                                 </p>
                                             </p>
                                             <p className='socksNames'>Available Socks</p>
@@ -177,7 +179,7 @@ function WearerObservations() {
                                                             Sock ID : {sockId.trim()}
                                                             <p className='wearerDeviceStatus'>
                                                                 <div className={
-                                                                    selectedWearer.DeviceStatus === "Online"
+                                                                    selectedWearer?.DeviceStatus === "Online"
                                                                         ? "statusDotOffline"
                                                                         : "statusDotOnline"
                                                                 }></div>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './DrillDown.css';
 import NavBar from '../../../Components/NavBar/NavBar';
 import SideBar from '../../../Components/SideBar/SideBar';
-import wearersData from '../../../Jsons/DbJson/Wearers.json';
+import { useWearersData } from '../../../Jsons/DbJson/useDbJson';
 import ActivityChartComponent from './Components/ActivityChart';
 import MobilityChartComponent from './Components/MobilityChart';
 import CalmnessChartComponent from './Components/CalmnessChart';
@@ -20,6 +20,7 @@ function getBarColor(confidence) {
 }
 
 function DrillDown() {
+  const wearersData = useWearersData();
   const [wearerName, setWearerName] = useState('');
   const [drillCard, setDrillCard] = useState(null);
 
@@ -43,7 +44,7 @@ function DrillDown() {
       console.error('Failed to read wearers JSON', err);
       setDrillCard(null);
     }
-  }, []);
+  }, [wearersData]);
 
   return (
     <>

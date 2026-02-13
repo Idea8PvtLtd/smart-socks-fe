@@ -3,13 +3,14 @@ import './Overview.css'
 import NavBar from '../../../Components/NavBar/NavBar'
 import { IoSearch } from "react-icons/io5";
 import SideBar from '../../../Components/SideBar/SideBar'
-import wearersData from '../../../Jsons/DbJson/Wearers.json';
+import { useWearersData } from '../../../Jsons/DbJson/useDbJson';
 import { RiWifiOffLine, RiWifiLine } from "react-icons/ri";
 import { GiBattery100 } from "react-icons/gi";
 import AlertDemo from '../../../Components/Alert/AlertDemo'
 import BarChart from '../OverviewProfile/Components/BarChart';
 
 function Overview() {
+  const wearersData = useWearersData();
     const wearers = Object.values(wearersData.Wearers);
     const [selectedFloor, setSelectedFloor] = React.useState(''); // changed from 'All Floor' to ''
     const [searchTerm, setSearchTerm] = React.useState('');

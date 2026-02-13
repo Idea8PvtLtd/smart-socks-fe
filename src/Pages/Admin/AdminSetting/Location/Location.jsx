@@ -2,13 +2,14 @@ import React, { useMemo, useState } from 'react';
 import NavBar from '../../../../Components/NavBar/NavBar';
 import SideBar from '../../../../Components/SideBar/AdminSideBar';
 import { MdEdit, MdDelete } from 'react-icons/md';
-import locationsData from '../../../../Jsons/DbJson/Locations.json';
+import { useLocationsData } from '../../../../Jsons/DbJson/useDbJson';
 import AddModel from './Components/AddLocation';
 import { IoSearchOutline } from 'react-icons/io5';
 import EditModel from './Components/UpdateLocationModel';
 import DeleteModel from './Components/DeleteLocationModel';
 
 function Location() {
+  const locationsData = useLocationsData();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);

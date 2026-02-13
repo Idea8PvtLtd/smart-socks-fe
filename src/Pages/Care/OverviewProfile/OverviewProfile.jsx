@@ -3,8 +3,8 @@ import './OverviewProfile.css'
 import NavBar from '../../../Components/NavBar/NavBar'
 import SideBar from '../../../Components/SideBar/SideBar'
 import NotesSection from '../Aleart/Components/NotesSection'
-import wearersData from '../../../Jsons/DbJson/Wearers.json';
-import alertsData from '../../../Jsons/DbJson/Alerts.json';
+import { useWearersData } from '../../../Jsons/DbJson/useDbJson';
+import { useAlertsData } from '../../../Jsons/DbJson/useDbJson';
 import { RiWifiOffLine, RiWifiLine } from "react-icons/ri";
 import { GiBattery100 } from "react-icons/gi";
 import { MdDateRange } from "react-icons/md";
@@ -115,6 +115,8 @@ const SeeMoreModal = ({ title, content, isOpen, onClose }) => {
 };
 
 function OverviewProfile() {
+  const wearersData = useWearersData();
+  const alertsData = useAlertsData();
     // Get selected wearer id from localStorage
     const selectedWearerId = localStorage.getItem('selectedWearerId');
 
@@ -247,11 +249,11 @@ function OverviewProfile() {
                                                         /> {selectedWearer.Battery}</p>
                                                     <p className='wearerDeviceStatus'>
                                                         <div className={
-                                                            selectedWearer.DeviceStatus === "Online"
+                                                            selectedWearer?.DeviceStatus === "Online"
                                                                 ? "statusDotOnline"
                                                                 : "statusDotOffline"
                                                         }></div>
-                                                        {selectedWearer.DeviceStatus}</p>
+                                                        {selectedWearer?.DeviceStatus}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -265,11 +267,11 @@ function OverviewProfile() {
                                                 Sock ID : {selectedWearer?.socksDataSet?.MainSockID || 'N/A'}
                                                 <p className='wearerDeviceStatus'>
                                                     <div className={
-                                                        selectedWearer.DeviceStatus === "Online"
+                                                        selectedWearer?.DeviceStatus === "Online"
                                                             ? "statusDotOnline"
                                                             : "statusDotOffline"
                                                     }></div>
-                                                    {selectedWearer.DeviceStatus}
+                                                    {selectedWearer?.DeviceStatus}
                                                 </p>
                                             </p>
                                             <p className='socksNames'>Available Socks</p>
@@ -280,7 +282,7 @@ function OverviewProfile() {
                                                             Sock ID : {sockId.trim()}
                                                             <p className='wearerDeviceStatus'>
                                                                 <div className={
-                                                                    selectedWearer.DeviceStatus === "Online"
+                                                                    selectedWearer?.DeviceStatus === "Online"
                                                                         ? "statusDotOffline"
                                                                         : "statusDotOnline"
                                                                 }></div>

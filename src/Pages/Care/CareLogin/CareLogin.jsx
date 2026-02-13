@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import './CareLogin.css'
-import authData from '../../../Jsons/DbJson/Auth.json';
+import { useAuthData } from '../../../Jsons/DbJson/useDbJson';
 import AlertDemo from '../../../Components/Alert/AlertDemo';
 import content from '../../../Jsons/Content/Content.json';
 import { useNavigate } from 'react-router-dom';
 
 function CareLogin() {
+  const authData = useAuthData();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [alertType, setAlertType] = useState('');

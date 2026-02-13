@@ -1,28 +1,21 @@
-import Papa from 'papaparse';
-import { DATA_BASE_DIR } from './FilterUtils';
+import { fetchChartPoints } from './ChartApi';
 
 class CalmnessMainChartPush {
   constructor({ pollMs = 1000, maxPoints = 0 } = {}) {
+    this.metric = 'CalmnessMainChart';
     this.data = [];
     this.listeners = [];
     this.intervalId = null;
     this.currentWearerId = null;
     this.storageListener = null;
-    this.pollMs = pollMs;       // default = 1s polling
-    this.maxPoints = maxPoints; // 0 = unlimited; else keep only last N
-
+    this.pollMs = pollMs;
+    this.maxPoints = maxPoints;
     this.updateSelectedWearer();
     this.setupStorageListener();
   }
 
-  // ====== Wearer selection ======
   getSelectedWearerId() {
     return localStorage.getItem('selectedWearerId') || '1';
-  }
-
-  getCSVPath() {
-    const wearerId = this.getSelectedWearerId();
-    return `${DATA_BASE_DIR}/CalmnessMainChart/${wearerId}.csv`;
   }
 
   updateSelectedWearer() {
@@ -30,7 +23,7 @@ class CalmnessMainChartPush {
     if (newWearerId !== this.currentWearerId) {
       this.currentWearerId = newWearerId;
       this.data = [];
-      this.updateData(true); // full reload
+      this.updateData(true);
     }
   }
 
@@ -43,7 +36,6 @@ class CalmnessMainChartPush {
     window.addEventListener('storage', this.storageListener);
   }
 
-  // ====== Helpers ======
   getLastTimestamp() {
     if (!this.data.length) return 0;
     return this.data[this.data.length - 1].time;
@@ -55,86 +47,53 @@ class CalmnessMainChartPush {
     }
   }
 
-  // ====== Fetch & parse CSV ======
-  async fetchCSVData() {
+  async fetchData() {
     try {
-      const csvPath = this.getCSVPath();
-      const response = await fetch(`${csvPath}?t=${Date.now()}`, { cache: 'no-store' });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const csvText = await response.text();
-
-      const lastSeen = this.getLastTimestamp();
-
-      return new Promise((resolve, reject) => {
-        Papa.parse(csvText, {
-          header: true,
-          skipEmptyLines: true,
-          complete: (results) => {
-            const parsed = results.data
-              .filter(r => r.x && r.y && r.time && r.date)
-              .map(r => {
-                const dt = new Date(r.x);
-                const unixTime = Math.floor(dt.getTime() / 1000);
-                return {
-                  time: unixTime,
-                  value: parseFloat(r.y),
-                  originalDateTime: r.x,
-                  originalTime: r.time,
-                  originalDate: r.date
-                };
-              })
-              .filter(pt => Number.isFinite(pt.time) && Number.isFinite(pt.value))
-              .sort((a, b) => a.time - b.time);
-
-            const delta = parsed.filter(pt => pt.time > lastSeen);
-            resolve(delta);
-          },
-          error: reject
-        });
-      });
-    } catch (err) {
-      console.error(`Error fetching CSV data for wearer ${this.currentWearerId}:`, err);
+      return await fetchChartPoints(this.metric, this.getSelectedWearerId(), this.getLastTimestamp());
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(`Error fetching ${this.metric}:`, error);
       return [];
     }
   }
 
   async updateData(forceFullReload = false) {
-    const delta = await this.fetchCSVData();
-
-    if (forceFullReload) {
-      if (delta.length > 0) {
-        this.data = delta;
-        this.maybeTrim();
-        this.notifyListeners();
-      }
-      return;
-    }
+    const delta = forceFullReload
+      ? await fetchChartPoints(this.metric, this.getSelectedWearerId(), 0).catch(() => [])
+      : await this.fetchData();
 
     if (delta.length > 0) {
-      this.data = this.data.concat(delta);
+      this.data = forceFullReload ? delta : this.data.concat(delta);
       this.maybeTrim();
       this.notifyListeners();
     }
   }
 
-  // ====== Listeners ======
-  addListener(cb) {
-    this.listeners.push(cb);
+  addListener(callback) {
+    this.listeners.push(callback);
   }
 
-  removeListener(cb) {
-    this.listeners = this.listeners.filter(fn => fn !== cb);
+  removeListener(callback) {
+    this.listeners = this.listeners.filter((fn) => fn !== callback);
   }
 
   notifyListeners() {
-    this.listeners.forEach(cb => {
-      try { cb(this.data); } catch (e) { console.error('Listener error:', e); }
+    this.listeners.forEach((callback) => {
+      try {
+        callback(this.data);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Listener error:', error);
+      }
     });
   }
 
-  // ====== Live control ======
   startLiveUpdates() {
-    this.updateData(true); // initial
+    if (this.intervalId) {
+      return;
+    }
+
+    this.updateData(true);
     this.intervalId = setInterval(() => {
       this.updateSelectedWearer();
       this.updateData();
@@ -142,14 +101,12 @@ class CalmnessMainChartPush {
   }
 
   stopLiveUpdates() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
+    if (!this.intervalId) {
+      return;
     }
-    if (this.storageListener) {
-      window.removeEventListener('storage', this.storageListener);
-      this.storageListener = null;
-    }
+
+    clearInterval(this.intervalId);
+    this.intervalId = null;
   }
 
   switchWearer(wearerId) {
@@ -162,7 +119,6 @@ class CalmnessMainChartPush {
   }
 }
 
-// Example: 1s polling, keep up to 10,000 points
 const calmnessChartPush = new CalmnessMainChartPush({ pollMs: 1000, maxPoints: 10000 });
 
 export default calmnessChartPush;

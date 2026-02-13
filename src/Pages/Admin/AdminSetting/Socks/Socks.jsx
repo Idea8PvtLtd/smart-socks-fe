@@ -2,13 +2,14 @@ import React, { useMemo, useState } from 'react';
 import NavBar from '../../../../Components/NavBar/NavBar';
 import SideBar from '../../../../Components/SideBar/AdminSideBar';
 import { MdEdit, MdDelete } from 'react-icons/md';
-import socksData from '../../../../Jsons/DbJson/Socks.json';
+import { useSocksData } from '../../../../Jsons/DbJson/useDbJson';
 import AddModel from './Components/AddSocksModel';
 import { IoSearchOutline } from 'react-icons/io5';
 import EditModel from './Components/UpdateSocksModel';
 import DeleteModel from './Components/DeleteSocksModel';
 
 function Socks() {
+  const socksData = useSocksData();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);

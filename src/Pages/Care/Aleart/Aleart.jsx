@@ -8,8 +8,8 @@ import { IoClose } from "react-icons/io5";
 import './Aleart.css';
 import NavBar from '../../../Components/NavBar/NavBar';
 import SideBar from '../../../Components/SideBar/SideBar';
-import wearersData from '../../../Jsons/DbJson/Wearers.json';
-import alertsData from '../../../Jsons/DbJson/Alerts.json';
+import { useWearersData } from '../../../Jsons/DbJson/useDbJson';
+import { useAlertsData } from '../../../Jsons/DbJson/useDbJson';
 import NotesSection from './Components/NotesSection'
 import { LuNotebookPen } from "react-icons/lu";
 // Alert Modal Component
@@ -238,6 +238,8 @@ const MultiSelectDropdown = ({ wearers, selectedWearers, setSelectedWearers }) =
 };
 
 function Aleart() {
+  const wearersData = useWearersData();
+  const alertsData = useAlertsData();
   // Get selected wearer id from localStorage
   const selectedWearerId = localStorage.getItem('selectedWearerId');
 

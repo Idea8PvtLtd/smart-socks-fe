@@ -2,13 +2,14 @@ import React, { useMemo, useState } from 'react';
 import NavBar from '../../../../Components/NavBar/NavBar';
 import SideBar from '../../../../Components/SideBar/AdminSideBar';
 import { MdEdit, MdDelete } from 'react-icons/md';
-import carersData from '../../../../Jsons/DbJson/Carers.json';
+import { useCarersData } from '../../../../Jsons/DbJson/useDbJson';
 import AddModel from './Components/AddCarersModel';
 import { IoSearchOutline } from 'react-icons/io5';
 import EditModel from './Components/UpdateCarersModel';
 import DeleteModel from './Components/DeleteCarersModel';
 
 function Carers() {
+  const carersData = useCarersData();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import AlertDemo from '../../../../../../Components/Alert/AlertDemo';
 import content from '../../../../../../Jsons/Content/Content.json';
-import wearersData from '../../../../../../Jsons/DbJson/Wearers.json';
-import socksData from '../../../../../../Jsons/DbJson/Socks.json';
+import { useWearersData, useSocksData } from '../../../../../../Jsons/DbJson/useDbJson';
+
 
 function AddSocks({ open, onClose, value = {}, onChange, onSave }) {
+  const wearersData = useWearersData();
+  const socksData = useSocksData();
   const [alertType, setAlertType] = useState('');
   const [localForm, setLocalForm] = useState({ FullName: '', SockSerialNumber: '' });
 

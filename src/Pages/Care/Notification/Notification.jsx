@@ -8,10 +8,11 @@ import { MdOutlineDateRange } from "react-icons/md";
 import { LuClock } from "react-icons/lu";
 import { IoClose } from "react-icons/io5";
 import { LuNotebookPen } from "react-icons/lu";
-import notificationData from '../../../Jsons/DbJson/Notification.json';
+import { useNotificationsData } from '../../../Jsons/DbJson/useDbJson';
 import NotesSection from './Components/AddNoteNotificationsModel';
 
 function Notification({ onClose }) {
+  const notificationData = useNotificationsData();
     // Get notifications as array
     const notifications = Object.values(notificationData.notification);
 

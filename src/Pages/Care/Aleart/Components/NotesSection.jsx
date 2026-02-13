@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { IoAdd, IoClose, IoCreateOutline } from "react-icons/io5";
 import { MdDateRange, MdPerson } from "react-icons/md";
 import { IoTimeOutline } from "react-icons/io5";
-import notesData from '../../../../Jsons/DbJson/Notes.json';
+import { useNotesData } from '../../../../Jsons/DbJson/useDbJson';
 import { LuNotebook } from "react-icons/lu";
 
 const NotesSection = ({ wearerId }) => {
+    const notesData = useNotesData();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('view'); // 'view' or 'add'
     const [newNote, setNewNote] = useState({

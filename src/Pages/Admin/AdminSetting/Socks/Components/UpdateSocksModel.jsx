@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import AlertDemo from '../../../../../Components/Alert/AlertDemo';
 import content from '../../../../../Jsons/Content/Content.json';
-import carersData from '../../../../../Jsons/DbJson/Carers.json';
+import { useCarersData } from '../../../../../Jsons/DbJson/useDbJson';
 
 function UpdateSocksModel({ open, onClose, value, onChange, onSave }) {
+  const carersData = useCarersData();
   const [alertType, setAlertType] = useState('');
   const [carersNames, setCarersNames] = useState([]);
 
@@ -40,7 +41,7 @@ function UpdateSocksModel({ open, onClose, value, onChange, onSave }) {
       }
       return names;
     });
-  }, [localForm.CarerName]);
+  }, [localForm.CarerName, carersData]);
 
   if (!open) return null;
 
